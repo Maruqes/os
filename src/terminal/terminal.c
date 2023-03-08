@@ -4,6 +4,8 @@
 #include "string/string.h"
 #include "idt/idt.h"
 #include "disk/disk.h"
+#include "nano/nano.h"
+
 char letters[72][7][5] = {
     {
         {"-----"},
@@ -654,6 +656,7 @@ char letters[72][7][5] = {
         {"#####"},
         {"#####"},
     },
+
 };
 
 struct Let lettersF[72];
@@ -681,23 +684,21 @@ void new_line()
     current_Y++;
     current_X = 0;
 }
-void clear_screen()
-{
-    for (int i = 0; i < SCREEN_HEIGHT; i++)
-    {
-        for (int j = 0; j < SCREEN_WIDHT; j++)
-        {
-            put_pixel(j, i, 0);
-        }
-    }
-}
+
 void write_char_pos(int x, int y, char c, int color)
 {
-    int k = c - 32;
-
+    int k = c;
+    if (k != 0)
+    {
+        k = c - 32;
+    }
     if (lettersF[k].n_pos == 0)
     {
-        c_slots[(y * TERMINAL_WIDTH) + x] = ' ';
+        if (c == 32)
+            c_slots[(y * TERMINAL_WIDTH) + x] = 32;
+        else
+            c_slots[(y * TERMINAL_WIDTH) + x] = 0;
+
         for (int i = 0; i < 7; i++)
         {
             for (int k = 0; k < 5; k++)
@@ -718,15 +719,23 @@ void write_char_pos(int x, int y, char c, int color)
     c_slots[(y * TERMINAL_WIDTH) + x] = c;
 }
 
+void clear_screen()
+{
+    for (int i = 0; i < TERMINAL_HEIGTH; i++)
+    {
+        for (int j = 0; j < TERMINAL_WIDTH; j++)
+        {
+            write_char_pos(j, i, 0, 0);
+        }
+    }
+}
 void set_command()
 {
     memset(command, 0x00, 20);
     for (int i = 0; i < 20; i++)
     {
-        if ((c_slots[(current_Y * TERMINAL_WIDTH) + 9 + i] > 64 && c_slots[(current_Y * TERMINAL_WIDTH) + 9 + i] < 91) || c_slots[(current_Y * TERMINAL_WIDTH) + 9 + i] == 32)
+        if (((c_slots[(current_Y * TERMINAL_WIDTH) + 9 + i] > 64 && c_slots[(current_Y * TERMINAL_WIDTH) + 9 + i] < 91)) || c_slots[(current_Y * TERMINAL_WIDTH) + 9 + i] == 32)
             command[i] = c_slots[((current_Y)*TERMINAL_WIDTH) + 9 + i];
-        else
-            break;
     }
 }
 
@@ -770,7 +779,8 @@ void write_char(char c, int color)
 
 void input(int size)
 {
-    input_str = zalloc(size);
+    input_str = zalloc(size + 1);
+    input_str[size + 1] = '\0';
     input_mode = 1;
     new_line();
     print("INPUT--->");
@@ -875,6 +885,12 @@ void get_command(char *command)
         save_on_disk();
         new_line();
     }
+    else if (cmpstring(command, "NANO"))
+    {
+        terminal_mode = 0;
+        activate_nano();
+        goto quit_console;
+    }
     else if (cmpstring(command, "TEST"))
     {
         char buf[512];
@@ -977,6 +993,7 @@ void create_letters()
 
 void start_terminal_mode()
 {
+    clear_pixels_screen();
     wait_one = 0;
     input_mode = 0;
     current_X = 0;
@@ -984,4 +1001,9 @@ void start_terminal_mode()
     create_letters();
     clear_screen();
     print("CONSOLE->");
+}
+
+char *get_c_slots()
+{
+    return c_slots;
 }

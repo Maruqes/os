@@ -105,6 +105,11 @@ void handleRawInfoFromKeyBoard(char c)
                 write_char(keys_struct[i].ascii_code, 0x00ff00);
                 return;
             }
+            else
+            {
+                (*console_controler)(keys_struct[i].ascii_code);
+                return;
+            }
         }
     }
 }

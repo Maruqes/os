@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "stddef.h": "c",
+        "io.h": "c",
+        "kernel.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "memory.h": "c",
+        "terminal.h": "c",
+        "keyboardhandler.h": "c",
+        "string.h": "c",
+        "idt.h": "c",
+        "stdint.h": "c"
+    }
+}

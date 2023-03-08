@@ -8,11 +8,13 @@
 #include "keyboardHandler/keyboardHandler.h"
 #include "gdt/gdt.h"
 #include "disk/disk.h"
+#include "nano/nano.h"
 
 unsigned int *framebuffer;
 void divide_zero();
 void setup();
 int terminal_mode;
+void (*console_controler)(char);
 
 void put_pixel(int x, int y, int color)
 {
@@ -28,6 +30,20 @@ void timer_phase(float hz)
     outb(0x40, (divisor >> 8) & 0xFF);
 }
 
+void get_keyboard_input(void *func)
+{
+    console_controler = func;
+}
+void clear_pixels_screen()
+{
+    for (int i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (int j = 0; j < SCREEN_WIDHT; j++)
+        {
+            put_pixel(j, i, 0);
+        }
+    }
+}
 void kernel_main(unsigned int *MultiBootHeaderStruct)
 {
     terminal_mode = 1;

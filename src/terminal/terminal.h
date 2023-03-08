@@ -1,7 +1,7 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
-#define TERMINAL_WIDTH 71
-#define TERMINAL_HEIGTH 24
+#define TERMINAL_WIDTH 72
+#define TERMINAL_HEIGTH 25
 struct XY
 {
     int x;
@@ -23,4 +23,6 @@ void backspace();
 void print(char *str);
 void printN(int n);
 void new_line();
+void clear_screen();
+char *get_c_slots();
 #endif
