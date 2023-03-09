@@ -9,4 +9,5 @@ void clear_pixels_screen();
 
 extern int terminal_mode;
 extern void (*console_controler)(char);
+
 #endif

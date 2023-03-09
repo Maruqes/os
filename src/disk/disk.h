@@ -29,4 +29,10 @@ struct disk_save_struct
     int last_sector;
 };
 
+extern struct disk_save_struct disk_save;
+extern void *files_addr;
+
+extern char *startFiles;
+extern char *endFiles;
+
 #endif

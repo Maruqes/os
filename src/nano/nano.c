@@ -24,17 +24,6 @@ int left_control = 0;
 
 void *c;
 
-void save_file()
-{
-    void *buf = zalloc((up_lines * TERMINAL_WIDTH) + (TERMINAL_WIDTH * TERMINAL_HEIGTH) + (down_lines * TERMINAL_WIDTH));
-
-    memcpy(buf, up_mem, (up_lines * TERMINAL_WIDTH));
-    memcpy(buf + (up_lines * TERMINAL_WIDTH), c, (TERMINAL_WIDTH * TERMINAL_HEIGTH));
-    memcpy(buf + (up_lines * TERMINAL_WIDTH) + (TERMINAL_WIDTH * TERMINAL_HEIGTH), down_mem, (down_lines * TERMINAL_WIDTH));
-
-    // rewrite_file("filename", buf, (up_lines * TERMINAL_WIDTH) + (TERMINAL_WIDTH * TERMINAL_HEIGTH) + (down_lines * TERMINAL_WIDTH));
-}
-
 void del_cursor()
 {
     write_char_pos(cursor_pos_x, cursor_pos_y, old_char, 0);
@@ -68,108 +57,12 @@ void update_cursor_pos(int p)
     // old_cursor_pos_y = cursor_pos_y;
 }
 
-void push_line_down()
-{
-    if (down_lines == 0)
-        return;
-
-    down_lines--;
-    char t[TERMINAL_WIDTH];
-    memcpy(t, down_mem + (down_lines * TERMINAL_WIDTH), TERMINAL_WIDTH);
-    for (int i = 0; i < TERMINAL_WIDTH; i++)
-    {
-        write_char_pos(i, TERMINAL_HEIGTH - 1, t[i], 0x00ff00);
-    }
-    void *down_mem_temp = zalloc(TERMINAL_WIDTH * down_lines);
-    memcpy(down_mem_temp, down_mem, TERMINAL_WIDTH * (down_lines));
-    free(down_mem);
-    down_mem = down_mem_temp;
-}
-
-void push_line_up()
-{
-    if (up_lines == 0)
-        return;
-    up_lines--;
-    char t[TERMINAL_WIDTH];
-    memcpy(t, up_mem + (up_lines * TERMINAL_WIDTH), TERMINAL_WIDTH);
-    for (int i = 0; i < TERMINAL_WIDTH; i++)
-    {
-        write_char_pos(i, 0, t[i], 0x00ff00);
-    }
-    void *up_mem_t = zalloc(TERMINAL_WIDTH * up_lines);
-    memcpy(up_mem_t, up_mem, TERMINAL_WIDTH * up_lines);
-    free(up_mem);
-    up_mem = up_mem_t;
-}
-
-void copy_line_to_memory_up()
-{
-    up_lines++;
-    void *up_mem_temp = zalloc(TERMINAL_WIDTH * up_lines);
-    memcpy(up_mem_temp, up_mem, TERMINAL_WIDTH * (up_lines - 1));             // copy old lines
-    memcpy(up_mem_temp + TERMINAL_WIDTH * (up_lines - 1), c, TERMINAL_WIDTH); // add new line
-    free(up_mem);
-    up_mem = up_mem_temp;
-}
-
-void copy_line_to_memory_down()
-{
-    down_lines++;
-    void *down_mem_temp = zalloc(TERMINAL_WIDTH * down_lines);
-    memcpy(down_mem_temp, down_mem, TERMINAL_WIDTH * (down_lines - 1));                                                                   // copy old lines
-    memcpy(down_mem_temp + TERMINAL_WIDTH * (down_lines - 1), c + ((TERMINAL_HEIGTH * TERMINAL_WIDTH) - TERMINAL_WIDTH), TERMINAL_WIDTH); // add new line
-    free(down_mem);
-    down_mem = down_mem_temp;
-}
-
 void clear_line(int line)
 {
     for (int i = 0; i < TERMINAL_WIDTH; i++)
     {
         write_char_pos(i, line, 0, 0);
     }
-}
-
-void delete_line_up()
-{
-    for (int j = 0; j < TERMINAL_HEIGTH; j++)
-    {
-        for (int i = 0; i < TERMINAL_WIDTH; i++)
-        {
-            write_char_pos(i, j, *(char *)(c + ((j + 1) * TERMINAL_WIDTH) + i), 0x00ff00);
-        }
-    }
-    clear_line(TERMINAL_HEIGTH - 1);
-}
-
-void delete_line_down()
-{
-    for (int j = 0; j < TERMINAL_HEIGTH; j++)
-    {
-        for (int i = 0; i < TERMINAL_WIDTH; i++)
-        {
-            write_char_pos(i, (TERMINAL_HEIGTH - j), *(char *)(c + (TERMINAL_HEIGTH - j - 1) * TERMINAL_WIDTH + i), 0x00ff00);
-        }
-    }
-    clear_line(0);
-}
-
-void save_line_up()
-{
-    // del_cursor();
-    copy_line_to_memory_up();
-    delete_line_up();
-    push_line_down();
-    //   get_cursor();
-}
-void save_line_down()
-{
-    // del_cursor();
-    copy_line_to_memory_down();
-    delete_line_down();
-    push_line_up();
-    //   get_cursor();
 }
 
 void backspace_nano()
@@ -209,31 +102,11 @@ void open_file(char c)
     }
     else if (c == 'P' && left_control == 1)
     {
-        save_line_up();
         left_control = 0;
         return;
     }
     else if (c == 'L' && left_control == 1)
     {
-        save_line_down();
-        left_control = 0;
-        return;
-    }
-    else if (c == 'O' && left_control == 1)
-    {
-        for (int i = 0; i < 200; i++)
-        {
-            save_line_up();
-        }
-        left_control = 0;
-        return;
-    }
-    else if (c == 'K' && left_control == 1)
-    {
-        for (int i = 0; i < 200; i++)
-        {
-            save_line_down();
-        }
         left_control = 0;
         return;
     }
@@ -251,7 +124,7 @@ void open_file(char c)
     {
         if (nano_current_Y == 0)
         {
-            save_line_down();
+            // save_line_down();
             update_cursor_pos(0);
             return;
         }
@@ -263,7 +136,7 @@ void open_file(char c)
     {
         if (nano_current_Y == TERMINAL_HEIGTH - 1)
         {
-            save_line_up();
+            // save_line_up();
             update_cursor_pos(0);
             return;
         }
@@ -304,3 +177,7 @@ void activate_nano()
     c = get_c_slots();
     get_keyboard_input(&open_file);
 }
+
+// criar um rr do tamanho do ficheiro sendo limitado a  x mb
+// dividir por linhas simplesmente torno o offset uuma linha abaixo
+// funçao q de acordo com a linha pega numa pag a frente da linha

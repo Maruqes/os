@@ -859,6 +859,7 @@ void get_command(char *command)
         }
         size = size * 1000;
         char buf[size];
+        memset(buf, 0, size);
         new_line();
         print(file_name);
         new_line();

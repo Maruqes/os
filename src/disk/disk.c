@@ -58,6 +58,7 @@ struct File get_file(int n)
 int disk_read_sector(int lba, void *buf)
 {
 	ATA_wait_BSY();
+	ATA_wait_DRQ();
 
 	lba = lba + OS_SECTORS + HEADER_SECTORS;
 	outb(0x1F6, 0xE0 | ((lba >> 24) & 0xF));
@@ -83,6 +84,7 @@ int disk_read_sector(int lba, void *buf)
 int disk_write_sector(int lba, void *buf)
 {
 	ATA_wait_BSY();
+	ATA_wait_DRQ();
 
 	lba = lba + OS_SECTORS + HEADER_SECTORS;
 	outb(0x1F6, (lba >> 24) | 0xE0);
@@ -269,48 +271,43 @@ int update_memory_map()
 	}
 	sort_numbers_ascending(startFiles, disk_save.number_of_files);
 	sort_numbers_ascending(endFiles, disk_save.number_of_files);
-	return -1;
+	return 0;
 }
 
 int write_file_to_memory(char *name, void *buf, int size)
 {
-	update_memory_map();
+	// update_memory_map();
 	int sizeR = round_to_512(size);
 	int size_of_sectors = sizeR / 512;
-	for (int i = 0; i < disk_save.number_of_files - 1; i++)
-	{
-		if (size_of_sectors <= startFiles[i + 1] - endFiles[i])
-		{
-			// encontrou
-			for (int k = 0; k < size_of_sectors; k++)
-			{
-				disk_write_sector(endFiles[i] + k, buf + (k * 512));
-			}
-			createFile(name, size_of_sectors, endFiles[i], 0);
-			new_line();
-			print(name);
-			print(" has been createdd");
-			new_line();
-			return 0;
-		}
-	}
+	// for (int i = 0; i < disk_save.number_of_files - 1; i++)
+	// {
+	// 	if (size_of_sectors <= startFiles[i + 1] - endFiles[i])
+	// 	{
+	// 		// encontrou
+	// 		for (int k = 0; k < size_of_sectors; k++)
+	// 		{
+	// 			disk_write_sector(endFiles[i] + k, buf + (k * 512));
+	// 		}
+	// 		createFile(name, size_of_sectors, endFiles[i], 0);
+	// 		new_line();
+	// 		print(name);
+	// 		print(" has been createdd");
+	// 		new_line();
+	// 		return 0;
+	// 	}
+	// }
 
-	for (int k = 0; k < size_of_sectors; k++)
+	for (int j = 0; j < size_of_sectors; j++)
 	{
-		buf = buf + (512 * k);
-		for (int j = 0; j < size_of_sectors; j++)
-		{
-			disk_write_sector(disk_save.last_sector + j + 1, buf + (j * 512));
-		}
-		createFile(name, size_of_sectors, disk_save.last_sector + 1, 1); // o .last_sector é ocupado
-		new_line();
-		print(name);
-		print(" has been created");
-		new_line();
-		return 0;
+		disk_write_sector(disk_save.last_sector + j, buf + (j * 512));
 	}
+	createFile(name, size_of_sectors, disk_save.last_sector, 1); // o .last_sector é ocupado
+	new_line();
+	print(name);
+	print(" has been created");
+	new_line();
 
-	return -1;
+	return 0;
 }
 
 int rewrite_file(char *name, void *buf, int size)
@@ -396,3 +393,4 @@ int get_n_files()
 {
 	return disk_save.number_of_files;
 }
+// problema a realocar ficheiros com espaço antes do lastfile

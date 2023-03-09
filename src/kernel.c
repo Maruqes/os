@@ -69,5 +69,9 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
 
     start_terminal_mode();
 
+    char buf[10000];
+    memset(buf, 0, 10000);
+    write_file_to_memory("AIU", buf, 10000);
+
     // divide_zero();
 }
