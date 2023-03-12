@@ -10,6 +10,7 @@
         "keyboardhandler.h": "c",
         "string.h": "c",
         "idt.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "math.h": "c"
     }
 }

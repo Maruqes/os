@@ -1,4 +1,4 @@
-FILES =./build/kernel.o ./build/io/io.asm.o ./build/memory/memory.o ./build/memory/memory.asm.o ./build/terminal/terminal.o ./build/string/string.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/keyboardHandler/keyboardHandler.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/kernel.asm.o ./build/disk/disk.o ./build/nano/nano.o
+FILES =./build/kernel.o ./build/io/io.asm.o ./build/memory/memory.o ./build/memory/memory.asm.o ./build/terminal/terminal.o ./build/string/string.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/keyboardHandler/keyboardHandler.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/kernel.asm.o ./build/disk/disk.o ./build/nano/nano.o ./build/math/math.o
 INCLUDES = -I./src
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
@@ -60,6 +60,9 @@ all: ./bin/boot.o ./bin/kernel.bin
 
 ./build/nano/nano.o: ./src/nano/nano.c
 	i686-elf-gcc $(INCLUDES) -I./src/nano $(FLAGS) -std=gnu99 -c ./src/nano/nano.c -o ./build/nano/nano.o
+
+./build/math/math.o: ./src/math/math.c
+	i686-elf-gcc $(INCLUDES) -I./src/math $(FLAGS) -std=gnu99 -c ./src/math/math.c -o ./build/math/math.o
 
 run:
 	qemu-system-i386 myos.iso

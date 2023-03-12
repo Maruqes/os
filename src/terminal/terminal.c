@@ -692,6 +692,10 @@ void write_char_pos(int x, int y, char c, int color)
     {
         k = c - 32;
     }
+    if (k < 0 || k > 72)
+    {
+        return;
+    }
     if (lettersF[k].n_pos == 0)
     {
         if (c == 32)
@@ -709,6 +713,13 @@ void write_char_pos(int x, int y, char c, int color)
         return;
     }
 
+    for (int i = 0; i < 7; i++)
+    {
+        for (int k = 0; k < 5; k++)
+        {
+            write_char_pixel_pos((k * 2) + (x * 11), (i * 2) + (y * 24), 0);
+        }
+    }
     for (int i = 0; i < lettersF[k].n_pos; i++)
     {
         struct XY xy;
@@ -888,14 +899,29 @@ void get_command(char *command)
     }
     else if (cmpstring(command, "NANO"))
     {
-        terminal_mode = 0;
-        activate_nano();
-        goto quit_console;
+        new_line();
+        print("instert file name: ");
+        input(6);
+        new_line();
+        set_filename(input_str);
+
+        if (check_file_existance(input_str))
+        {
+            set_filename(input_str);
+            free(input_str);
+            terminal_mode = 0;
+            activate_nano();
+            goto quit_console;
+        }
+        else
+        {
+            free(input_str);
+            print("file does not exist :D");
+        }
     }
     else if (cmpstring(command, "TEST"))
     {
-        char buf[512];
-        disk_read_sector(500, buf);
+        dtest();
     }
     else
     {

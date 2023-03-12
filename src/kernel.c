@@ -9,6 +9,7 @@
 #include "gdt/gdt.h"
 #include "disk/disk.h"
 #include "nano/nano.h"
+#include "math/math.h"
 
 unsigned int *framebuffer;
 void divide_zero();
@@ -53,6 +54,7 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     idt_init();
     startKeyboardHandler();
     enable_int();
+    disk_init();
     read_from_disk();
     get_hz(5000);
     timer_phase(5000);
@@ -70,8 +72,27 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     start_terminal_mode();
 
     char buf[10000];
-    memset(buf, 0, 10000);
-    write_file_to_memory("AIU", buf, 10000);
+    memset(buf, 'O', 10000);
+    memset(buf, 'B', 512);
+    buf[508] = 'P';
+    buf[509] = 'U';
+    buf[510] = 'T';
+    buf[511] = 'A';
+    memset(buf + 512, 'C', 512);
+    memset(buf + 1024, 'L', 512);
+    memset(buf + 10000 - 512, 'H', 512);
+    for (int i = 0; i < 10000 / 512; i++)
+    {
+        buf[i * 512 - 1] = 'K';
+    }
+    write_file_to_memory("TEST", buf, 10000);
+
+    char *buff = zalloc(4);
+
+    memset(buff, 'T', 4);
+
+    write_block_file("TEST", buff, 4, 511);
+    free(buff);
 
     // divide_zero();
 }

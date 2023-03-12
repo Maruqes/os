@@ -16,10 +16,17 @@ int get_n_files();
 int read_file(char *name, void *buf, int size);
 void ATA_wait_BSY();
 void ATA_wait_DRQ();
+void disk_init();
+int check_file_existance(char *name);
+int read_block_file(char *name, void *buf, int size, int starting_byte);
+struct File get_file_by_name(char *name);
+int write_block_file(char *name, void *buf, int size, int starting_byte);
+void dtest();
 struct File
 {
     char name[6];
     int start_sector;
+    int last_sector;
     int number_of_sectors;
 };
 
@@ -31,8 +38,5 @@ struct disk_save_struct
 
 extern struct disk_save_struct disk_save;
 extern void *files_addr;
-
-extern char *startFiles;
-extern char *endFiles;
 
 #endif
