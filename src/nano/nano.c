@@ -62,6 +62,16 @@ void del_cursor()
     write_char_pos(cursor_pos_x, cursor_pos_y, old_char, 0);
 }
 
+void quit()
+{
+    del_cursor();
+    update_page();
+    free(filename);
+    clear_pixels_screen();
+    terminal_mode = 1;
+    start_terminal_mode();
+}
+
 void get_cursor()
 {
     old_char = *(char *)(c + (cursor_pos_y * TERMINAL_WIDTH) + cursor_pos_x);
@@ -72,22 +82,22 @@ void get_cursor()
 
 void update_cursor_pos(int p)
 {
-    // if (nano_current_X == TERMINAL_WIDTH - 1)
-    // {
-    //     cursor_pos_x = 0;
-    //     cursor_pos_y = nano_current_Y + 1;
-    // }
-    // else
-    // {
-    //     cursor_pos_x = nano_current_X + p;
-    //     cursor_pos_y = nano_current_Y;
-    // }
+    if (nano_current_X == TERMINAL_WIDTH - 1)
+    {
+        cursor_pos_x = 0;
+        cursor_pos_y = nano_current_Y + 1;
+    }
+    else
+    {
+        cursor_pos_x = nano_current_X + p;
+        cursor_pos_y = nano_current_Y;
+    }
 
-    // write_char_pos(old_cursor_pos_x, old_cursor_pos_y, old_char, 0x00ff00);
-    // old_char = *(char *)(c + (cursor_pos_y * TERMINAL_WIDTH) + cursor_pos_x);
-    // write_char_pos(cursor_pos_x, cursor_pos_y, 102, 0x00ff00);
-    // old_cursor_pos_x = cursor_pos_x;
-    // old_cursor_pos_y = cursor_pos_y;
+    write_char_pos(old_cursor_pos_x, old_cursor_pos_y, old_char, 0x00ff00);
+    old_char = *(char *)(c + (cursor_pos_y * TERMINAL_WIDTH) + cursor_pos_x);
+    write_char_pos(cursor_pos_x, cursor_pos_y, 102, 0x00ff00);
+    old_cursor_pos_x = cursor_pos_x;
+    old_cursor_pos_y = cursor_pos_y;
 }
 
 void clear_line(int line)
@@ -133,15 +143,9 @@ void open_file(char c)
         left_control = 1;
         return;
     }
-    else if (c == 'P' && left_control == 1)
+    else if (c == 'Q' && left_control == 1)
     {
-        left_control = 0;
-        return;
-    }
-    else if (c == 'L' && left_control == 1)
-    {
-        nano_current_Y = 0;
-        left_control = 0;
+        quit();
         return;
     }
     else if (c == -2)
@@ -156,22 +160,42 @@ void open_file(char c)
     }
     else if (c == -4)
     {
-        if (current_line > 0)
+        del_cursor();
+        if (nano_current_Y > 0)
         {
-            update_page();
-            current_line--;
-            read_blocks(current_line * NANO_WIDTH);
+            nano_current_Y--;
         }
+        else
+        {
+            if (current_line > 0)
+            {
+                update_page();
+                current_line--;
+                read_blocks(current_line * NANO_WIDTH);
+            }
+        }
+        get_cursor();
+        update_cursor_pos(0);
         return;
     }
     else if (c == -5)
     {
-        if (current_line * NANO_WIDTH + (NANO_WIDTH * NANO_HEIGHT) < filelen)
+        del_cursor();
+        if (nano_current_Y < NANO_HEIGHT - 1)
         {
-            update_page();
-            current_line++;
-            read_blocks(current_line * NANO_WIDTH);
+            nano_current_Y++;
         }
+        else
+        {
+            if (current_line * NANO_WIDTH + (NANO_WIDTH * NANO_HEIGHT) < filelen)
+            {
+                update_page();
+                current_line++;
+                read_blocks(current_line * NANO_WIDTH);
+            }
+        }
+        get_cursor();
+        update_cursor_pos(0);
         // print(digit_to_number(current_line));
 
         return;
@@ -192,6 +216,8 @@ void open_file(char c)
         update_cursor_pos(0);
         return;
     }
+    if (nano_current_Y > NANO_HEIGHT - 1)
+        return;
     update_cursor_pos(1);
     write_char_pos(nano_current_X, nano_current_Y, c, 0x00ff00);
     nano_current_X++;
@@ -216,6 +242,7 @@ void activate_nano()
     current_line = 0;
     nano_current_X = 0;
     nano_current_Y = 0;
+    left_control = 0;
     clear_screen();
     c = get_c_slots();
     get_keyboard_input(&open_file);

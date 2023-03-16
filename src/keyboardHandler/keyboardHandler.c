@@ -90,7 +90,7 @@ void handleRawInfoFromKeyBoard(char c)
         {
             lastKeyPressed = keys_struct[i].code;
 
-            if (terminal_mode)
+            if (terminal_mode == 1)
             {
                 if (keys_struct[i].ascii_code == -2)
                 {

@@ -9,5 +9,7 @@ void clear_pixels_screen();
 
 extern int terminal_mode;
 extern void (*console_controler)(char);
+extern unsigned int *framebuffer;
+extern void (*app)();
 
 #endif

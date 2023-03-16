@@ -328,10 +328,6 @@ int write_block_file(char *name, void *buf, int size, int starting_byte)
 				return 0;
 			}
 		}
-		else
-		{
-			return -1;
-		}
 	}
 	print("problem writting");
 	return -1;

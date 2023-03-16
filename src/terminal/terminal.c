@@ -5,7 +5,7 @@
 #include "idt/idt.h"
 #include "disk/disk.h"
 #include "nano/nano.h"
-
+#include "raycaster/raycaster.h"
 char letters[72][7][5] = {
     {
         {"-----"},
@@ -900,7 +900,7 @@ void get_command(char *command)
     else if (cmpstring(command, "NANO"))
     {
         new_line();
-        print("instert file name: ");
+        print("instert file name(file must be at least 3 sectors/1536 bytes): ");
         input(6);
         new_line();
         set_filename(input_str);
@@ -922,6 +922,10 @@ void get_command(char *command)
     else if (cmpstring(command, "TEST"))
     {
         dtest();
+    }
+    else if (cmpstring(command, "RAY"))
+    {
+        app = &raycaster_init;
     }
     else
     {
