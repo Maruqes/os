@@ -1,4 +1,4 @@
-# os
+# Simple os
 Simple OS with idt, gdt, and more basic os features.
 Memory manager created from ground by me, as the file system with a new philosophy inspirated in the memory manager also created by me.
 Text file editor also created by me with the name "nano".
