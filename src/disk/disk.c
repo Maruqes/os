@@ -91,7 +91,6 @@ void sort_files_for_sector_number()
 		struct File tfile2 = get_file(i + 1);
 		if (tfile.start_sector > tfile2.start_sector)
 		{
-			print("OI");
 			set_file(tfile, i + 1);
 			set_file(tfile2, i);
 			sort_files_for_sector_number();

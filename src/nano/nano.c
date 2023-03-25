@@ -66,6 +66,18 @@ void quit()
 {
     del_cursor();
     update_page();
+    char *t = zalloc(512);
+    for (int i = 0; i < file.number_of_sectors; i++)
+    {
+        memset(t, 0, 512);
+        disk_read_sector(file.start_sector + i, t);
+        for (int j = 0; j < 512; j++)
+        {
+            if (t[j] == 0)
+                t[j] = 0x20;
+        }
+        disk_write_sector(file.start_sector + i, t);
+    }
     free(filename);
     clear_pixels_screen();
     terminal_mode = 1;

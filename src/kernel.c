@@ -51,6 +51,40 @@ void clear_pixels_screen()
         }
     }
 }
+
+static void play_sound(uint32_t nFrequence)
+{
+    uint32_t Div;
+    uint8_t tmp;
+
+    // Set the PIT to the desired frequency
+    Div = 1193180 / nFrequence;
+    outb(0x43, 0xb6);
+    outb(0x42, (uint8_t)(Div));
+    outb(0x42, (uint8_t)(Div >> 8));
+
+    // And play the sound using the PC speaker
+    tmp = insb(0x61);
+    if (tmp != (tmp | 3))
+    {
+        outb(0x61, tmp | 3);
+    }
+}
+
+// make it shutup
+static void nosound()
+{
+    uint8_t tmp = insb(0x61) & 0xFC;
+
+    outb(0x61, tmp);
+}
+void beep(uint32_t nFrequence)
+{
+    play_sound(nFrequence);
+    sleep(50);
+    nosound();
+}
+
 void kernel_main(unsigned int *MultiBootHeaderStruct)
 {
     terminal_mode = 1;
@@ -75,6 +109,8 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
             put_pixel(j, i, 0x0000FF);
         }
     }
+
+    beep(12000);
 
     start_terminal_mode();
     while (1)

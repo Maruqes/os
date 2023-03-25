@@ -3,6 +3,7 @@
 
 void raycaster_init();
 void raycaster_keyboard_input(char c);
+
 typedef struct
 {
     float x;

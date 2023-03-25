@@ -4,7 +4,9 @@
 #define M_PI 3.14159265358979323846
 #define M_PI_2 (M_PI / 2.0f)
 #define M_PI_M_2 (M_PI * 2.0f)
-
+#define RAD 0.0174532925
+#define P2 (M_PI / 2)
+#define P3 (3 * M_PI / 2)
 double sqrt(double x);
 int pow(int a, int b);
 float atan2f(float y, float x);
@@ -12,6 +14,7 @@ float atanf(float x);
 int min(int a, int b);
 int max(int a, int b);
 int abs(int a);
+double fabs(double a);
 void swap(int *a, int *b);
 double cos(double x);
 double sin(double x);

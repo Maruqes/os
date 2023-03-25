@@ -68,7 +68,7 @@ all: ./bin/boot.o ./bin/kernel.bin
 	i686-elf-gcc $(INCLUDES) -I./src/raycaster $(FLAGS) -std=gnu99 -c ./src/raycaster/raycaster.c -o ./build/raycaster/raycaster.o
 
 run:
-	qemu-system-i386 myos.iso
+	qemu-system-i386 -soundhw pcspk myos.iso
 
 clear:
 	rm $(FILES)
