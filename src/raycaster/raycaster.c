@@ -401,7 +401,7 @@ aqui:
 void raycaster_init()
 {
     terminal_mode = 0;
-
+    run = 1;
     screen_buffer_size = SCREEN_WIDHT * SCREEN_HEIGHT;
     screenbuffer_save = zalloc(screen_buffer_size);
 
