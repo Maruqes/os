@@ -23,6 +23,11 @@ void null_f()
 {
 }
 
+void quit_app()
+{
+    app = &null_f;
+}
+
 void put_pixel(int x, int y, int color)
 {
     framebuffer[y * SCREEN_WIDHT + x] = color;
@@ -109,8 +114,6 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
             put_pixel(j, i, 0x0000FF);
         }
     }
-
-    beep(12000);
 
     start_terminal_mode();
     while (1)

@@ -18,6 +18,9 @@ int map_width = 8;
 int map_height = 8;
 int map_size = 64;
 
+int left_control_ray = 0;
+int run = 1;
+
 int map[] =
     {
         1,
@@ -97,8 +100,23 @@ void put_pixel_save_buffer(int x, int y, int color)
     screenbuffer_save[y * SCREEN_WIDHT + x] = color;
 }
 
+void quit_ray()
+{
+    run = 0;
+}
+
 void raycaster_keyboard_input(char c)
 {
+    if (c == -8)
+    {
+        left_control_ray = 1;
+        return;
+    }
+    else if (c == 'Q' && left_control_ray == 1)
+    {
+        quit_ray();
+        return;
+    }
     if (c == 'W')
     {
         player.x -= player.dx;
@@ -405,7 +423,7 @@ void raycaster_init()
 
     Point c = {0, 0};
     Point d = {0, 0};
-    while (1)
+    while (run)
     {
         for (int i = 0; i < screen_buffer_size; i++)
         {
@@ -461,4 +479,10 @@ void raycaster_init()
             framebuffer[i] = screenbuffer_save[i];
         }
     }
+    quit_app();
+    free(screenbuffer_save);
+    free(screen_buffer);
+    terminal_mode = 1;
+    clear_pixels_screen();
+    start_terminal_mode();
 }

@@ -6,6 +6,7 @@
 void put_pixel(int x, int y, int color);
 void get_keyboard_input(void *func);
 void clear_pixels_screen();
+void quit_app();
 
 extern int terminal_mode;
 extern void (*console_controler)(char);
