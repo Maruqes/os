@@ -1,6 +1,7 @@
 #include "gdt.h"
 #include <stdint.h>
 #include "memory/memory.h"
+#include "config.h"
 
 typedef struct
 {
@@ -92,5 +93,5 @@ void __attribute__((cdecl)) i686_GDT_Load(GDTDescriptor *descriptor, uint16_t co
 
 void i686_GDT_Initialize()
 {
-    i686_GDT_Load(&g_GDTDescriptor, i686_GDT_CODE_SEGMENT, i686_GDT_DATA_SEGMENT);
+    i686_GDT_Load(&g_GDTDescriptor, KERNEL_CODE_SELECTOR, KERNEL_DATA_SELECTOR);
 }

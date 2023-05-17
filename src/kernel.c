@@ -11,6 +11,7 @@
 #include "nano/nano.h"
 #include "math/math.h"
 #include "raycaster/raycaster.h"
+#include "mouse/mouse.h"
 
 unsigned int *framebuffer;
 void divide_zero();
@@ -18,6 +19,9 @@ void setup();
 int terminal_mode;
 void (*console_controler)(char);
 void (*app)();
+unsigned int sleep_time;
+
+extern void test();
 
 void null_f()
 {
@@ -57,45 +61,13 @@ void clear_pixels_screen()
     }
 }
 
-static void play_sound(uint32_t nFrequence)
-{
-    uint32_t Div;
-    uint8_t tmp;
-
-    // Set the PIT to the desired frequency
-    Div = 1193180 / nFrequence;
-    outb(0x43, 0xb6);
-    outb(0x42, (uint8_t)(Div));
-    outb(0x42, (uint8_t)(Div >> 8));
-
-    // And play the sound using the PC speaker
-    tmp = insb(0x61);
-    if (tmp != (tmp | 3))
-    {
-        outb(0x61, tmp | 3);
-    }
-}
-
-// make it shutup
-static void nosound()
-{
-    uint8_t tmp = insb(0x61) & 0xFC;
-
-    outb(0x61, tmp);
-}
-void beep(uint32_t nFrequence)
-{
-    play_sound(nFrequence);
-    sleep(50);
-    nosound();
-}
-
 void kernel_main(unsigned int *MultiBootHeaderStruct)
 {
     terminal_mode = 1;
     i686_GDT_Initialize();
     setup();
     heap_init();
+    mouse_start();
     idt_init();
     startKeyboardHandler();
     enable_int();
@@ -104,6 +76,7 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     get_hz(5000);
     timer_phase(5000);
     app = &null_f;
+    sleep_time = 0;
 
     framebuffer = (unsigned int *)MultiBootHeaderStruct[22];
 
@@ -116,6 +89,10 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     }
 
     start_terminal_mode();
+
+    // test_jump_program();
+    //    test();
+    print("  CONTINUA");
     while (1)
     {
         (*app)();
@@ -123,3 +100,14 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
 
     // divide_zero();
 }
+
+/*
+    top 10 planos do ano
+criar el botador de fixero aparte amigo :D PITON
+tentare rodare programe
+
+
+//top 1 objetivo é criar o minimo de suporte para aplicaçoes tipo uma calculadora(dar info do rato, dar upload a app pre compilada)
+
+lindo
+*/

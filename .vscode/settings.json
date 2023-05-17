@@ -15,6 +15,14 @@
         "raycaster.h": "c",
         "disk.h": "c",
         "cmath": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "gdt.h": "c",
+        "cstddef": "c",
+        "mouse.h": "c",
+        "algorithm": "c",
+        "memory": "c",
+        "new": "c",
+        "numeric": "c",
+        "system_error": "c"
     }
 }

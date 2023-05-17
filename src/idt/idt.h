@@ -24,7 +24,10 @@ int sleep(int mills);
 void get_hz(float hz);
 void int21h_handler();
 void int21h_handler_input();
+void int32h_handler();
 void start_count();
 int finish_count();
+void finish_int();
+void finish_int_slave_pic();
 
 #endif

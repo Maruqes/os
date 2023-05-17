@@ -25,4 +25,8 @@ void printN(int n);
 void new_line();
 void clear_screen();
 char *get_c_slots();
+void input(int size);
+
+extern char *input_str;
+
 #endif

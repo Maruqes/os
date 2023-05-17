@@ -6,6 +6,7 @@
 #include "disk/disk.h"
 #include "nano/nano.h"
 #include "raycaster/raycaster.h"
+#include "exec/exec.h"
 char letters[72][7][5] = {
     {
         {"-----"},
@@ -927,6 +928,15 @@ void get_command(char *command)
     {
         app = &raycaster_init;
     }
+    else if (cmpstring(command, "RUN"))
+    {
+        new_line();
+        print("instert file name: ");
+        input(6);
+        new_line();
+        execute(input_str);
+        free(input_str);
+    }
     else
     {
         new_line();
@@ -1024,6 +1034,7 @@ void create_letters()
 
 void start_terminal_mode()
 {
+    terminal_mode = 1;
     clear_pixels_screen();
     wait_one = 0;
     input_mode = 0;

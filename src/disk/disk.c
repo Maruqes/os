@@ -7,7 +7,7 @@
 #include "disk/disk.h"
 #include "terminal/terminal.h"
 #define DISK_STRUCT_SECTOR 1
-#define OS_SECTORS 20000
+#define OS_SECTORS 20020
 #define HEADER_SECTORS 512
 struct disk_save_struct disk_save;
 void *files_addr;
@@ -194,10 +194,6 @@ int read_from_disk()
 
 		memcpy(p, &buf2, 512);
 	}
-
-	struct File file3;
-
-	memcpy(&file3, files_addr + (0 * sizeof(struct File)), sizeof(struct File));
 
 	return 0;
 }

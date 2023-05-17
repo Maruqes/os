@@ -24,17 +24,17 @@ int write_block_file(char *name, void *buf, int size, int starting_byte);
 void dtest();
 struct File
 {
-    char name[6];
     int start_sector;
     int last_sector;
     int number_of_sectors;
-};
+    char name[6];
+} __attribute__((packed));
 
 struct disk_save_struct
 {
     int number_of_files;
     int last_sector;
-};
+} __attribute__((packed));
 
 extern struct disk_save_struct disk_save;
 extern void *files_addr;
