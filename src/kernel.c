@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "config.h"
 #include "io/io.h"
 #include <stdint.h>
 #include "memory/memory.h"
@@ -12,6 +13,7 @@
 #include "math/math.h"
 #include "raycaster/raycaster.h"
 #include "mouse/mouse.h"
+#include "exec/exec.h"
 
 unsigned int *framebuffer;
 void divide_zero();
@@ -20,6 +22,7 @@ int terminal_mode;
 void (*console_controler)(char);
 void (*app)();
 unsigned int sleep_time;
+void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
 
 extern void test();
 
@@ -48,8 +51,10 @@ void timer_phase(float hz)
 
 void get_keyboard_input(void *func)
 {
+    terminal_mode = 0;
     console_controler = func;
 }
+
 void clear_pixels_screen()
 {
     for (int i = 0; i < SCREEN_HEIGHT; i++)
@@ -59,6 +64,20 @@ void clear_pixels_screen()
             put_pixel(j, i, 0);
         }
     }
+}
+
+void start_OS_FUNCTIONS()
+{
+    OS_FUNCTIONS[0] = (void *)sleep;
+    OS_FUNCTIONS[1] = (void *)idt_printINT;
+    OS_FUNCTIONS[2] = (void *)malloc;
+    OS_FUNCTIONS[3] = (void *)free;
+    OS_FUNCTIONS[4] = (void *)memset;
+    OS_FUNCTIONS[5] = (void *)memcpy;
+    OS_FUNCTIONS[6] = (void *)memcmp;
+    OS_FUNCTIONS[7] = (void *)new_line;
+    OS_FUNCTIONS[8] = (void *)clear_screen;
+    OS_FUNCTIONS[9] = (void *)get_mouse_info;
 }
 
 void kernel_main(unsigned int *MultiBootHeaderStruct)
@@ -77,6 +96,7 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     timer_phase(5000);
     app = &null_f;
     sleep_time = 0;
+    start_OS_FUNCTIONS();
 
     framebuffer = (unsigned int *)MultiBootHeaderStruct[22];
 

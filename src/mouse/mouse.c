@@ -9,6 +9,7 @@ char mouse_x;
 char mouse_y;
 int cur_x;
 int cur_y;
+Mouse_struct mouse_struct;
 
 void mouse_wait_output()
 {
@@ -92,21 +93,19 @@ void handle_mouse_info()
         mouse_byte[0] = mouse_read();
 
         // buttons
-        if ((mouse_byte[0] & 0b00000001) == 0b00000001)
-        {
-            // left btn
-            print("l");
-        }
-        if ((mouse_byte[0] & 0b00000010) == 0b00000010)
-        {
-            // left btn
-            print("r");
-        }
-        if ((mouse_byte[0] & 0b00000100) == 0b00000100)
-        {
-            // left btn
-            print("m");
-        }
+        // if ((mouse_byte[0] & 0b00000001) == 0b00000001)
+        // {
+        //     print("l");
+        // }
+        // if ((mouse_byte[0] & 0b00000010) == 0b00000010)
+        // {
+        //     print("r");
+        // }
+        // if ((mouse_byte[0] & 0b00000100) == 0b00000100)
+        // {
+        //     print("m");
+        // }
+        mouse_struct.mouse_info = mouse_byte[0];
 
         //
         mouse_cycle++;
@@ -138,5 +137,12 @@ void handle_mouse_info()
     if (cur_y > SCREEN_HEIGHT)
         cur_y = SCREEN_HEIGHT - 1;
 
-    put_pixel(cur_x, cur_y, 0x00ff00);
+    mouse_struct.x = cur_x;
+    mouse_struct.y = cur_y;
+    // put_pixel(cur_x, cur_y, 0x00ff00);
+}
+
+Mouse_struct *get_mouse_info()
+{
+    return &mouse_struct;
 }

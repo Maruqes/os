@@ -29,5 +29,6 @@ void start_count();
 int finish_count();
 void finish_int();
 void finish_int_slave_pic();
+void idt_printINT(int address);
 
 #endif

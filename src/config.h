@@ -16,4 +16,6 @@
 
 #define GAYOS_SECTOR_SIZE 512
 #define GAYOS_MAX_FILE 10
+
+#define OS_EXTERN_FUNCTIONS 10
 #endif

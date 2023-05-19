@@ -7,7 +7,8 @@ extern finish_int
 extern input_str
 extern int_malloc_addr
 extern framebuffer
-extern sleep
+extern CURRENT_FUNCTION
+extern result_screen_test
 
 
 
@@ -23,19 +24,17 @@ extern idt_printINT
 extern idt_quit_appINT
 extern idt_inputINT
 extern idt_printADDRINT
-extern int_mallocINT
-extern int_freeINT
 extern int_screenINT
-extern int_sleepINT
+extern int_give_OS_FUNCTIONS
+extern int_test_screent_INT
 
 global printINT
 global quit_appINT
 global inputINT
 global printADDRINT
-global mallocINT
-global freeINT
 global screenINT
-global sleepINT
+global get_addrINT
+global test_screent_INT
 
 
 enable_int:
@@ -107,30 +106,19 @@ printADDRINT:
     ;popad
     iret
 
-mallocINT:
-    push eax
-    call int_mallocINT
-    pop eax
-    call return_malloc_value
-    iret
 
-return_malloc_value:
-    mov eax, [int_malloc_addr]
-    ret
-
-freeINT:
-    push eax
-    call int_freeINT
-    pop eax
-    iret
 
 screenINT:
     call int_screenINT
     mov eax, [framebuffer]
     iret
 
-sleepINT:
-    ;call int_screenINT
-    mov eax, sleep
+get_addrINT:
+    call int_give_OS_FUNCTIONS
+    mov eax, [CURRENT_FUNCTION]
     iret
 
+test_screent_INT:
+    call int_test_screent_INT
+    mov eax, [result_screen_test]
+    iret

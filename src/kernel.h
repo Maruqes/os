@@ -3,6 +3,7 @@
 #define SCREEN_WIDHT 800
 #define SCREEN_HEIGHT 600
 #include <stdint.h>
+#include "config.h"
 
 void put_pixel(int x, int y, int color);
 void get_keyboard_input(void *func);
@@ -14,5 +15,6 @@ extern int terminal_mode;
 extern void (*console_controler)(char);
 extern unsigned int *framebuffer;
 extern void (*app)();
+extern void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
 
 #endif

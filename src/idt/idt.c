@@ -22,10 +22,10 @@ extern void printINT();
 extern void quit_appINT();
 extern void inputINT();
 extern void printADDRINT();
-extern void mallocINT();
+extern void test_screent_INT();
 extern void freeINT();
 extern void screenINT();
-extern void sleepINT();
+extern void get_addrINT();
 
 int timer_ticks = 0;
 int is_sleeping = 0;
@@ -105,9 +105,10 @@ void idt_zero()
 
 ///////
 
-void idt_printINT(uint32_t address)
+void idt_printINT(int address)
 {
-    print((char *)(addr_program + p_offset + address));
+    print((char *)(addr_program + p_offset + address)); // probemas no linker do programa
+    // print((char *)(addr_program + 0x2178));
 }
 
 void idt_quit_appINT()
@@ -130,25 +131,34 @@ void idt_printADDRINT(char *address)
     print(address);
 }
 
-void *int_malloc_addr;
-void int_mallocINT(int size)
-{
-    int_malloc_addr = malloc(size);
-}
-
-void int_freeINT(void *ptr)
-{
-    free(ptr);
-}
-
 void int_screenINT()
 {
     terminal_mode = 0;
 }
 
-void int_sleepINT(int mili)
+int function_given_counter;
+void (*CURRENT_FUNCTION)();
+void int_give_OS_FUNCTIONS()
 {
-    // sleep(mili); // not working
+    CURRENT_FUNCTION = OS_FUNCTIONS[function_given_counter];
+    function_given_counter++;
+    if (function_given_counter == OS_EXTERN_FUNCTIONS)
+    {
+        function_given_counter = 0;
+    }
+}
+
+int result_screen_test;
+void int_test_screent_INT()
+{
+    if (framebuffer[0] == 0x00ff00 && framebuffer[478601] == 0x00ff00)
+    {
+        result_screen_test = 1;
+    }
+    else
+    {
+        result_screen_test = 0;
+    }
 }
 
 ////////
@@ -172,6 +182,7 @@ void int32h_handler()
 
 void idt_init()
 {
+    function_given_counter = 0;
 
     // PIC
     outb(0x20, 0x11);
@@ -206,14 +217,14 @@ void idt_init()
     idt_set(0x21, int21h); // 33 em decimal
     idt_set(0x2C, int32h); // mouse(driver) //44 em decimal
 
-    idt_set(16, printINT);     // print
-    idt_set(17, quit_appINT);  // quit
-    idt_set(18, inputINT);     // input
-    idt_set(19, printADDRINT); // printADDR
-    idt_set(20, mallocINT);    // malloc
-    idt_set(21, freeINT);      // free
-    idt_set(22, screenINT);    // get_screen_buf
-    idt_set(23, sleepINT);     // sleep
+    idt_set(16, printINT);         // print
+    idt_set(17, quit_appINT);      // quit
+    idt_set(18, inputINT);         // input
+    idt_set(19, printADDRINT);     // printADDR
+    idt_set(20, test_screent_INT); // testar o screenINT
+    // idt_set(21, freeINT);          // free
+    idt_set(22, screenINT);   // get_screen_buf
+    idt_set(23, get_addrINT); // sleep
 
     // keyboard, mouse, tela
 

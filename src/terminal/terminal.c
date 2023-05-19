@@ -740,6 +740,8 @@ void clear_screen()
             write_char_pos(j, i, 0, 0);
         }
     }
+    current_X = 0;
+    current_Y = 0;
 }
 void set_command()
 {
@@ -987,6 +989,8 @@ void write_char_terminal(char c, int color)
 
 void print(char *str)
 {
+    if (terminal_mode == 0)
+        return;
     for (int i = 0; i < strlen(str); i++)
     {
         if (str[i] > 90)
