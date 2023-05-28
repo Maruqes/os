@@ -12,6 +12,7 @@ extern result_screen_test
 
 
 
+
 global int21h
 global int32h
 global idt_load
@@ -27,6 +28,12 @@ extern idt_printADDRINT
 extern int_screenINT
 extern int_give_OS_FUNCTIONS
 extern int_test_screent_INT
+extern int_debbugINT
+extern int_debbugINT2
+
+extern change_tasks
+extern main_stack
+
 
 global printINT
 global quit_appINT
@@ -35,6 +42,11 @@ global printADDRINT
 global screenINT
 global get_addrINT
 global test_screent_INT
+global debbugINT
+global create_task_int
+global change_task_int
+
+
 
 
 enable_int:
@@ -112,6 +124,59 @@ screenINT:
     call int_screenINT
     mov eax, [framebuffer]
     iret
+
+extern application_adress
+
+debbugINT:
+    iret
+
+
+;MULTI TASKING SYSTEM
+extern new_stack_pointer
+extern new_stack_base_pointer
+
+extern save_current_task_esp
+extern save_current_task_ebp
+
+
+extern set_old_ptr
+
+
+create_task_int:
+
+    mov [save_current_task_esp], esp
+    mov [save_current_task_ebp], ebp
+    call set_old_ptr
+    
+    mov eax, [esp];copy old stack to create task
+    mov ebx, [esp+4]
+    mov ecx, [esp+8]
+    
+    mov esp, [new_stack_pointer]
+    mov ebp, [new_stack_base_pointer]
+    push ecx
+    push ebx
+    push eax
+
+    mov eax, [application_adress]
+    mov [esp], eax
+
+    iret
+
+change_task_int:
+    mov [save_current_task_esp], esp
+    mov [save_current_task_ebp], ebp
+    call set_old_ptr
+
+    mov eax, [new_stack_pointer]
+    mov ebx, [new_stack_base_pointer]
+    mov esp, eax
+    mov ebp, ebx
+    sti
+    iret
+
+;MULTI TASKING SYSTEM OVER
+
 
 get_addrINT:
     call int_give_OS_FUNCTIONS

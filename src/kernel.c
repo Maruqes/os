@@ -14,6 +14,7 @@
 #include "raycaster/raycaster.h"
 #include "mouse/mouse.h"
 #include "exec/exec.h"
+#include "multitasking/multitasking.h"
 
 unsigned int *framebuffer;
 void divide_zero();
@@ -23,8 +24,47 @@ void (*console_controler)(char);
 void (*app)();
 unsigned int sleep_time;
 void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
+int execute_function;
+uint32_t *main_stack;
 
 extern void test();
+extern void test2();
+extern void test3();
+extern void test4();
+extern void test_kernel_call();
+extern void test_kernel_call2();
+
+void (*test_app_save)();
+
+void test_kernel_call2()
+{
+    enable_int();
+    finish_int();
+    int pqp = 0;
+    print("CALLED");
+    while (1)
+    {
+        print(" LOOP3 ");
+        print(digit_to_number(pqp));
+        sleep(3000);
+        pqp++;
+    }
+}
+
+void test_kernel_call()
+{
+    enable_int();
+    finish_int();
+    int pqp = 0;
+    print("CALLED");
+    while (1)
+    {
+        print(" LOOP2 ");
+        print(digit_to_number(pqp));
+        sleep(3000);
+        pqp++;
+    }
+}
 
 void null_f()
 {
@@ -78,7 +118,10 @@ void start_OS_FUNCTIONS()
     OS_FUNCTIONS[7] = (void *)new_line;
     OS_FUNCTIONS[8] = (void *)clear_screen;
     OS_FUNCTIONS[9] = (void *)get_mouse_info;
+    OS_FUNCTIONS[10] = (void *)finish_int;
+    OS_FUNCTIONS[11] = (void *)enable_int;
 }
+int pqp = 0;
 
 void kernel_main(unsigned int *MultiBootHeaderStruct)
 {
@@ -96,7 +139,9 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     timer_phase(5000);
     app = &null_f;
     sleep_time = 0;
+    execute_function = 0;
     start_OS_FUNCTIONS();
+    multitasking_init();
 
     framebuffer = (unsigned int *)MultiBootHeaderStruct[22];
 
@@ -113,10 +158,26 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     // test_jump_program();
     //    test();
     print("  CONTINUA");
+
     while (1)
     {
-        (*app)();
+        // print(" LOOP ");
+        // print(digit_to_number(pqp));
+        // //(*app)();
+        // sleep(5000);
+        // if (pqp == 1)
+        // {
+        //     execute("OIU");
+        //     pqp = 0;
+        // }
+        // if (pqp == 2)
+        // {
+        //     execute("ABC");
+        //     pqp = 0;
+        // }
     }
+
+    print("ENDED");
 
     // divide_zero();
 }

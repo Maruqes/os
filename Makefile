@@ -1,4 +1,4 @@
-FILES =./build/kernel.o ./build/io/io.asm.o ./build/memory/memory.o ./build/memory/memory.asm.o ./build/terminal/terminal.o ./build/string/string.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/keyboardHandler/keyboardHandler.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/kernel.asm.o ./build/disk/disk.o ./build/nano/nano.o ./build/math/math.o ./build/raycaster/raycaster.o ./build/mouse/mouse.o ./build/exec/exec.o
+FILES =./build/kernel.o ./build/io/io.asm.o ./build/memory/memory.o ./build/memory/memory.asm.o ./build/terminal/terminal.o ./build/string/string.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/keyboardHandler/keyboardHandler.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/kernel.asm.o ./build/disk/disk.o ./build/nano/nano.o ./build/math/math.o ./build/raycaster/raycaster.o ./build/mouse/mouse.o ./build/exec/exec.o ./build/multitasking/multitasking.asm.o ./build/multitasking/multitasking.o
 INCLUDES = -I./src
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
@@ -73,8 +73,14 @@ all: ./bin/boot.o ./bin/kernel.bin
 ./build/exec/exec.o: ./src/exec/exec.c
 	i686-elf-gcc $(INCLUDES) -I./src/exec $(FLAGS) -std=gnu99 -c ./src/exec/exec.c -o ./build/exec/exec.o
 
+./build/multitasking/multitasking.asm.o: ./src/multitasking/multitasking.asm
+	nasm -f elf -g ./src/multitasking/multitasking.asm -o ./build/multitasking/multitasking.asm.o 
+
+./build/multitasking/multitasking.o: ./src/multitasking/multitasking.c
+	i686-elf-gcc $(INCLUDES) -I./src/multitasking $(FLAGS) -std=gnu99 -c ./src/multitasking/multitasking.c -o ./build/multitasking/multitasking.o
+
 run:
-	qemu-system-i386 -soundhw pcspk myos.iso
+	qemu-system-i386 myos.iso
 
 clear:
 	rm $(FILES)

@@ -3,13 +3,22 @@
 #include "disk/disk.h"
 #include "memory/memory.h"
 #include "terminal/terminal.h"
-
-void *addr_program;
-uint16_t p_offset;
+#include "multitasking/multitasking.h"
+#include "idt/idt.h"
 
 void execute(char *fileName)
 {
+    void *addr_program;
+    uint16_t p_offset;
+
     struct File tfile = get_file_by_name(fileName);
+    print("EXECUTING: ");
+    print(fileName);
+    if (tfile.last_sector == -1)
+    {
+        print("FILE does not exist");
+        return;
+    }
     addr_program = zalloc(tfile.number_of_sectors * 512);
     int a = read_file(tfile.name, addr_program, tfile.number_of_sectors * 512);
     if (a == -1)
@@ -27,8 +36,5 @@ void execute(char *fileName)
     }
     memcpy(&p_offset, addr_program + elf_struct.e_phoff + 4, 4);
 
-    // void (*foo)(void) = (void (*)())(addr_program + p_offset);
-    // foo();
-    app = (addr_program + p_offset);
-    free(addr_program);
+    create_task(addr_program, p_offset);
 }

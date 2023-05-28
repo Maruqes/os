@@ -1,6 +1,10 @@
 section .asm
 
+extern test_kernel_call
 extern test
+extern test2
+extern test3
+extern test4
 
 global divide_zero
 global setup
@@ -17,8 +21,19 @@ setup:
     ret
 
 test:
-    mov eax, mensagem
-    int 20 ;CD 3C
-    ret;fiquei a tarde inteira / noite do dia anterior ai das 3 e 30 as 5 e 30 sem saber o porque de o interrupt crashar o os... faltava retornar... triste mas é a PUTA DA VIDA
+    int 21
+    ret
+
+test2:
+    int 24
+    ret
+
+test3:
+    int 25
+    ret
+
+test4:
+    int 23
+    ret
 
 mensagem db 'Hello world', 0x00

@@ -20,7 +20,5 @@ typedef struct
 } Elf32Hdr;
 
 void execute(char *fileName);
-extern void *addr_program;
-extern uint16_t p_offset;
 
 #endif

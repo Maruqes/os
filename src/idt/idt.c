@@ -8,6 +8,7 @@
 #include "string/string.h"
 #include "mouse/mouse.h"
 #include "exec/exec.h"
+#include "multitasking/multitasking.h"
 
 struct idt_desc idt_descriptors[GAYOS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
@@ -26,8 +27,12 @@ extern void test_screent_INT();
 extern void freeINT();
 extern void screenINT();
 extern void get_addrINT();
+extern void debbugINT();
+extern void create_task_int();
+extern void change_task_int();
 
 int timer_ticks = 0;
+int clock_ticks = 0;
 int is_sleeping = 0;
 int hz;
 
@@ -36,9 +41,24 @@ void get_hz(float hzz)
     hz = hzz;
 }
 
+void call_multi_tasking_system()
+{
+    if (tasks_n < 2)
+        return;
+
+    clock_ticks++;
+    if (clock_ticks >= 1000)
+    {
+        clock_ticks = 0;
+        disable_int();
+        change_tasks();
+    }
+}
+
 void finish_int()
 {
     outb(0x20, 0x20);
+    call_multi_tasking_system();
     if (is_sleeping)
     {
         timer_ticks++;
@@ -48,6 +68,9 @@ void finish_int()
 void finish_int_slave_pic()
 {
     outb(0xA0, 0x20);
+
+    call_multi_tasking_system();
+
     if (is_sleeping)
     {
         timer_ticks++;
@@ -56,6 +79,7 @@ void finish_int_slave_pic()
 
 int sleep(int mills)
 {
+    print("SP");
     timer_ticks = 0;
     int a = (mills * hz) / 1000;
     is_sleeping = 1;
@@ -70,6 +94,12 @@ wait:
     {
         goto wait;
     }
+}
+
+void stop_sleep()
+{
+    is_sleeping = 0;
+    timer_ticks = 0;
 }
 
 void start_count()
@@ -104,10 +134,11 @@ void idt_zero()
 }
 
 ///////
+void *cur_addr_program;
 
 void idt_printINT(int address)
 {
-    print((char *)(addr_program + p_offset + address)); // probemas no linker do programa
+    print((char *)(cur_addr_program + address)); // probemas no linker do programa
     // print((char *)(addr_program + 0x2178));
 }
 
@@ -159,6 +190,14 @@ void int_test_screent_INT()
     {
         result_screen_test = 0;
     }
+}
+
+void int_debbugINT()
+{
+}
+
+void int_debbugINT2()
+{
 }
 
 ////////
@@ -222,9 +261,11 @@ void idt_init()
     idt_set(18, inputINT);         // input
     idt_set(19, printADDRINT);     // printADDR
     idt_set(20, test_screent_INT); // testar o screenINT
-    // idt_set(21, freeINT);          // free
-    idt_set(22, screenINT);   // get_screen_buf
-    idt_set(23, get_addrINT); // sleep
+    idt_set(21, debbugINT);        // debuug
+    idt_set(22, screenINT);        // get_screen_buf
+    idt_set(23, get_addrINT);      // sleep
+    idt_set(24, create_task_int);  // create_task_int
+    idt_set(25, change_task_int);  // debuug3
 
     // keyboard, mouse, tela
 

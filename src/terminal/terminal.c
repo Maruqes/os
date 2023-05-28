@@ -7,6 +7,8 @@
 #include "nano/nano.h"
 #include "raycaster/raycaster.h"
 #include "exec/exec.h"
+#include "multitasking/multitasking.h"
+
 char letters[72][7][5] = {
     {
         {"-----"},
@@ -803,6 +805,13 @@ void input(int size)
         int21h_handler_input();
     }
 }
+extern void test2();
+extern void test();
+extern void test_kernel_call();
+extern void test_kernel_call2();
+
+uint32_t *ptr1;
+uint32_t *ptr2;
 
 void get_command(char *command)
 {
@@ -938,6 +947,32 @@ void get_command(char *command)
         new_line();
         execute(input_str);
         free(input_str);
+    }
+    else if (cmpstring(command, "CT"))
+    {
+        change_tasks();
+    }
+
+    else if (cmpstring(command, "FDS"))
+    {
+        finish_int();
+        disable_int();
+
+        execute("OIU");
+    }
+    else if (cmpstring(command, "FDSS"))
+    {
+        finish_int();
+        disable_int();
+
+        execute("ABC");
+    }
+    else if (cmpstring(command, "FDSSS"))
+    {
+        finish_int();
+        disable_int();
+
+        execute("PFF");
     }
     else
     {
