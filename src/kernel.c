@@ -27,54 +27,6 @@ void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
 int execute_function;
 uint32_t *main_stack;
 
-extern void test();
-extern void test2();
-extern void test3();
-extern void test4();
-extern void test_kernel_call();
-extern void test_kernel_call2();
-
-void (*test_app_save)();
-
-void test_kernel_call2()
-{
-    enable_int();
-    finish_int();
-    int pqp = 0;
-    print("CALLED");
-    while (1)
-    {
-        print(" LOOP3 ");
-        print(digit_to_number(pqp));
-        sleep(3000);
-        pqp++;
-    }
-}
-
-void test_kernel_call()
-{
-    enable_int();
-    finish_int();
-    int pqp = 0;
-    print("CALLED");
-    while (1)
-    {
-        print(" LOOP2 ");
-        print(digit_to_number(pqp));
-        sleep(3000);
-        pqp++;
-    }
-}
-
-void null_f()
-{
-}
-
-void quit_app()
-{
-    app = &null_f;
-}
-
 void put_pixel(int x, int y, int color)
 {
     framebuffer[y * SCREEN_WIDHT + x] = color;
@@ -137,7 +89,6 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     read_from_disk();
     get_hz(5000);
     timer_phase(5000);
-    app = &null_f;
     sleep_time = 0;
     execute_function = 0;
     start_OS_FUNCTIONS();
@@ -154,30 +105,6 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     }
 
     start_terminal_mode();
-
-    // test_jump_program();
-    //    test();
-    print("  CONTINUA");
-
-    while (1)
-    {
-        // print(" LOOP ");
-        // print(digit_to_number(pqp));
-        // //(*app)();
-        // sleep(5000);
-        // if (pqp == 1)
-        // {
-        //     execute("OIU");
-        //     pqp = 0;
-        // }
-        // if (pqp == 2)
-        // {
-        //     execute("ABC");
-        //     pqp = 0;
-        // }
-    }
-
-    print("ENDED");
 
     // divide_zero();
 }

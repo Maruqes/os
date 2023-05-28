@@ -6,14 +6,17 @@ typedef struct
 {
     void *addr_program;
     uint32_t p_offset;
+    uint32_t *start_stack_pointer;
     uint32_t *stack_pointer;
     uint32_t *stack_base_pointer;
+    uint32_t pid;
 } Task;
 
 void change_tasks();
 void multitasking_init();
 void create_task(void *addr_program, uint16_t p_offset);
 void set_old_ptr();
+void quit_app(uint32_t pid);
 extern unsigned int tasks_n;
 
 extern uint32_t *new_stack_pointer;

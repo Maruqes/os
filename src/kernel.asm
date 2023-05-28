@@ -20,20 +20,5 @@ setup:
     out 0x92, al
     ret
 
-test:
-    int 21
-    ret
-
-test2:
-    int 24
-    ret
-
-test3:
-    int 25
-    ret
-
-test4:
-    int 23
-    ret
 
 mensagem db 'Hello world', 0x00

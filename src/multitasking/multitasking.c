@@ -10,6 +10,7 @@ extern void initialize_task();
 extern void change_task_asm();
 
 unsigned int tasks_n;
+uint32_t tasks_pid;
 void *tasks_save;
 int cur_task;
 
@@ -28,6 +29,7 @@ void multitasking_init()
 {
     cur_task = 0;
     tasks_n = 0;
+    tasks_pid = 0;
     tasks_save = zalloc(sizeof(Task) * 256);
 }
 
@@ -43,16 +45,34 @@ void set_task(Task task, int n)
     memcpy(tasks_save + (n * sizeof(Task)), &task, sizeof(Task));
 }
 
+void delete_task(int n)
+{
+    void *task_pos = tasks_save + (n * sizeof(Task));
+    void *next_task_pos = tasks_save + ((n + 1) * sizeof(Task));
+
+    memcpy(task_pos, next_task_pos, sizeof(Task) * (tasks_n - (n + 2)));
+
+    memset(tasks_save + ((tasks_n - 1) * sizeof(Task)), 0, sizeof(Task));
+
+    tasks_n -= 1;
+}
+
 void create_task(void *addr_program, uint16_t p_offset)
 {
     Task task;
     task.addr_program = addr_program;
     task.p_offset = p_offset;
 
-    task.stack_pointer = (uint32_t *)zalloc(4096);
-    task.stack_base_pointer = task.stack_pointer + 4096;
+    task.start_stack_pointer = (uint32_t *)zalloc(2048);
+
+    task.stack_pointer = task.start_stack_pointer;
+    task.stack_base_pointer = task.stack_pointer + 2048;
+
+    task.pid = tasks_pid;
+    tasks_pid += 1;
 
     set_task(task, tasks_n);
+
     cur_task = tasks_n;
     tasks_n++;
 
@@ -107,4 +127,28 @@ void set_old_ptr()
     task.stack_pointer = save_current_task_esp;
     task.stack_base_pointer = save_current_task_ebp;
     set_task(task, save_task_n);
+}
+
+void quit_app(uint32_t pid) // does now work
+{
+    disable_int();
+    Task task;
+    int i = 0;
+    for (i = 0; i < tasks_n; i++) // get correct task
+    {
+        task = get_task(i);
+        if (task.pid == pid)
+        {
+            break;
+        }
+        if (i == tasks_n - 1)
+        {
+            print("COULD NOT FIND TASK");
+            return;
+        }
+    }
+    free(task.addr_program);
+    free(task.start_stack_pointer);
+    delete_task(i);
+    enable_int();
 }

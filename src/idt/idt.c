@@ -79,7 +79,6 @@ void finish_int_slave_pic()
 
 int sleep(int mills)
 {
-    print("SP");
     timer_ticks = 0;
     int a = (mills * hz) / 1000;
     is_sleeping = 1;
@@ -144,7 +143,6 @@ void idt_printINT(int address)
 
 void idt_quit_appINT()
 {
-    quit_app();
     if (terminal_mode == 0)
         start_terminal_mode();
 }

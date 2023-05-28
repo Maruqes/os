@@ -937,7 +937,7 @@ void get_command(char *command)
     }
     else if (cmpstring(command, "RAY"))
     {
-        app = &raycaster_init;
+        // app = &raycaster_init;
     }
     else if (cmpstring(command, "RUN"))
     {
@@ -948,6 +948,15 @@ void get_command(char *command)
         execute(input_str);
         free(input_str);
     }
+    else if (cmpstring(command, "QUIT"))
+    {
+        new_line();
+        print("instert file name: ");
+        input(6);
+        new_line();
+        quit_app(number_to_digit(input_str));
+        free(input_str);
+    }
     else if (cmpstring(command, "CT"))
     {
         change_tasks();
@@ -955,21 +964,18 @@ void get_command(char *command)
 
     else if (cmpstring(command, "FDS"))
     {
-        finish_int();
         disable_int();
 
         execute("OIU");
     }
     else if (cmpstring(command, "FDSS"))
     {
-        finish_int();
         disable_int();
 
         execute("ABC");
     }
     else if (cmpstring(command, "FDSSS"))
     {
-        finish_int();
         disable_int();
 
         execute("PFF");

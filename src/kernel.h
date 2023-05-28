@@ -14,12 +14,7 @@ void test_jump_program();
 extern int terminal_mode;
 extern void (*console_controler)(char);
 extern unsigned int *framebuffer;
-extern void (*app)();
-extern void (*test_app_save)();
 extern void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
-extern void test();
 extern int execute_function;
-extern uint32_t *main_stack;
-extern int pqp;
 
 #endif

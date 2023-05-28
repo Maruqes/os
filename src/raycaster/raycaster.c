@@ -479,7 +479,7 @@ void raycaster_init()
             framebuffer[i] = screenbuffer_save[i];
         }
     }
-    quit_app();
+    // quit_app();
     free(screenbuffer_save);
     free(screen_buffer);
     terminal_mode = 1;
