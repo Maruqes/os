@@ -950,6 +950,7 @@ void get_command(char *command)
     }
     else if (cmpstring(command, "QUIT"))
     {
+        disable_int();
         new_line();
         print("instert file name: ");
         input(6);
@@ -960,25 +961,6 @@ void get_command(char *command)
     else if (cmpstring(command, "CT"))
     {
         change_tasks();
-    }
-
-    else if (cmpstring(command, "FDS"))
-    {
-        disable_int();
-
-        execute("OIU");
-    }
-    else if (cmpstring(command, "FDSS"))
-    {
-        disable_int();
-
-        execute("ABC");
-    }
-    else if (cmpstring(command, "FDSSS"))
-    {
-        disable_int();
-
-        execute("PFF");
     }
     else
     {
