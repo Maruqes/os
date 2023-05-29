@@ -50,14 +50,22 @@ void delete_task(int n)
     void *task_pos = tasks_save + (n * sizeof(Task));
     void *next_task_pos = tasks_save + ((n + 1) * sizeof(Task));
 
-    memcpy(task_pos, next_task_pos, sizeof(Task) * (tasks_n - (n + 2)));
+    memcpy(task_pos, next_task_pos, sizeof(Task) * (tasks_n - (n + 1)));
 
     memset(tasks_save + ((tasks_n - 1) * sizeof(Task)), 0, sizeof(Task));
 
     tasks_n -= 1;
 }
 
-void create_task(void *addr_program, uint16_t p_offset)
+void end_task()
+{
+    Task task = get_task(cur_task);
+    free(task.addr_program);
+    free(task.start_stack_pointer);
+    delete_task(cur_task);
+}
+
+void create_task(void *addr_program, uint16_t p_offset, char *filename)
 {
     Task task;
     task.addr_program = addr_program;
@@ -70,6 +78,11 @@ void create_task(void *addr_program, uint16_t p_offset)
 
     task.pid = tasks_pid;
     tasks_pid += 1;
+
+    task.end_task = 0;
+
+    task.task_name = zalloc(MAX_FILENAME_LENGTH);
+    memcpy(task.task_name, filename, MAX_FILENAME_LENGTH);
 
     set_task(task, tasks_n);
 
@@ -101,6 +114,19 @@ void change_tasks()
     }
 
     Task t_change = get_task(cur_task);
+
+    if (t_change.end_task == 1)
+    {
+        end_task();
+        if (tasks_n < 2)
+            return;
+        if (cur_task >= tasks_n - 1)
+        {
+            cur_task = 0;
+        }
+        t_change = get_task(cur_task);
+    }
+
     new_stack_pointer = t_change.stack_pointer;
     new_stack_base_pointer = t_change.stack_base_pointer;
     cur_addr_program = t_change.addr_program + t_change.p_offset;
@@ -129,16 +155,15 @@ void set_old_ptr()
     set_task(task, save_task_n);
 }
 
-void quit_app(uint32_t pid) // does now work
+void quit_app(uint32_t pid)
 {
-    disable_int();
-    Task task;
-    int i = 0;
-    for (i = 0; i < tasks_n; i++) // get correct task
+    for (int i = 0; i < tasks_n; i++) // get correct task
     {
-        task = get_task(i);
+        Task task = get_task(i);
         if (task.pid == pid)
         {
+            task.end_task = 1;
+            set_task(task, i);
             break;
         }
         if (i == tasks_n - 1)
@@ -147,8 +172,18 @@ void quit_app(uint32_t pid) // does now work
             return;
         }
     }
-    free(task.addr_program);
-    free(task.start_stack_pointer);
-    delete_task(i);
-    enable_int();
+}
+
+void printPID()
+{
+    new_line();
+    for (int i = 0; i < tasks_n; i++)
+    {
+        Task task = get_task(i);
+        print("PID: ");
+        print(digit_to_number(task.pid));
+        print("   PN: ");
+        print(task.task_name);
+        new_line();
+    }
 }

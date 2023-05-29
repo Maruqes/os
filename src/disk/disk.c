@@ -204,12 +204,12 @@ int createFile(char *name, int size, int start_Sector, int last)
 	tfile.number_of_sectors = size;
 	tfile.start_sector = start_Sector;
 	tfile.last_sector = start_Sector + (size - 1);
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < MAX_FILENAME_LENGTH - 1; i++)
 	{
 		tfile.name[i] = name[i];
 	}
 
-	tfile.name[5] = 0x00;
+	tfile.name[MAX_FILENAME_LENGTH - 1] = 0x00;
 
 	void *t_files_addr = zalloc(sizeof(struct File) * (disk_save.number_of_files + 1));
 

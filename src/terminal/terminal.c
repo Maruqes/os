@@ -847,20 +847,20 @@ void get_command(char *command)
         // falta checkar se o nome e repetido
         new_line();
         print("Write the name of the file (max 6):");
-        input(6);
+        input(MAX_FILENAME_LENGTH);
         if (input_str[0] == 0)
         {
             print("we need a normal input");
             goto console_finish;
         }
-        char *file_name = zalloc(6);
-        memcpy(file_name, input_str, 6);
+        char *file_name = zalloc(MAX_FILENAME_LENGTH);
+        memcpy(file_name, input_str, MAX_FILENAME_LENGTH);
         free(input_str);
 
         // falta checkar se sao numeros
         new_line();
         print("Write the lenght of the file (1 = 1kb = 1000 bytes, max = 5000)");
-        input(6);
+        input(MAX_FILENAME_LENGTH);
 
         if (input_str[0] == 0)
         {
@@ -868,8 +868,8 @@ void get_command(char *command)
             goto console_finish;
         }
 
-        char *file_lenght = zalloc(6);
-        memcpy(file_lenght, input_str, 6);
+        char *file_lenght = zalloc(MAX_FILENAME_LENGTH);
+        memcpy(file_lenght, input_str, MAX_FILENAME_LENGTH);
         free(input_str);
 
         int size = number_to_digit(file_lenght);
@@ -942,25 +942,25 @@ void get_command(char *command)
     else if (cmpstring(command, "RUN"))
     {
         new_line();
-        print("instert file name: ");
+        print("insert file name: ");
         input(6);
         new_line();
         execute(input_str);
-        free(input_str);
+        // free esta dentro do execute
     }
     else if (cmpstring(command, "QUIT"))
     {
         disable_int();
         new_line();
-        print("instert file name: ");
+        print("insert PID: ");
         input(6);
         new_line();
         quit_app(number_to_digit(input_str));
         free(input_str);
     }
-    else if (cmpstring(command, "CT"))
+    else if (cmpstring(command, "PS"))
     {
-        change_tasks();
+        printPID();
     }
     else
     {

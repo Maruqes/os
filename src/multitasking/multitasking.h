@@ -10,13 +10,16 @@ typedef struct
     uint32_t *stack_pointer;
     uint32_t *stack_base_pointer;
     uint32_t pid;
+    int end_task;
+    char *task_name;
 } Task;
 
 void change_tasks();
 void multitasking_init();
-void create_task(void *addr_program, uint16_t p_offset);
+void create_task(void *addr_program, uint16_t p_offset, char *filename);
 void set_old_ptr();
 void quit_app(uint32_t pid);
+void printPID();
 extern unsigned int tasks_n;
 
 extern uint32_t *new_stack_pointer;

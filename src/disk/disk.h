@@ -1,6 +1,7 @@
 #ifndef DISK_H
 #define DISK_H
 #include <stddef.h>
+#include "config.h"
 int disk_read_sector(int lba, void *buf);
 int disk_write_sector(int lba, void *buf);
 int save_on_disk();
@@ -27,7 +28,7 @@ struct File
     int start_sector;
     int last_sector;
     int number_of_sectors;
-    char name[6];
+    char name[MAX_FILENAME_LENGTH];
 } __attribute__((packed));
 
 struct disk_save_struct

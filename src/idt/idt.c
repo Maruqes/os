@@ -10,7 +10,7 @@
 #include "exec/exec.h"
 #include "multitasking/multitasking.h"
 
-struct idt_desc idt_descriptors[GAYOS_TOTAL_INTERRUPTS];
+struct idt_desc idt_descriptors[OS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
 
 extern void idt_load(struct idtr_desc *ptr);
@@ -245,7 +245,7 @@ void idt_init()
     idtr_descriptor.limit = sizeof(idt_descriptors) - 1;
     idtr_descriptor.base = (uint32_t)idt_descriptors;
 
-    for (int i = 0; i < GAYOS_TOTAL_INTERRUPTS; i++)
+    for (int i = 0; i < OS_TOTAL_INTERRUPTS; i++)
     {
         idt_set(i, no_interrupt);
     }

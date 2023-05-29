@@ -12,6 +12,7 @@ void execute(char *fileName)
     uint16_t p_offset;
 
     struct File tfile = get_file_by_name(fileName);
+    free(input_str);
     print("EXECUTING: ");
     print(fileName);
     if (tfile.last_sector == -1)
@@ -36,5 +37,5 @@ void execute(char *fileName)
     }
     memcpy(&p_offset, addr_program + elf_struct.e_phoff + 4, 4);
 
-    create_task(addr_program, p_offset);
+    create_task(addr_program, p_offset, tfile.name);
 }
