@@ -48,12 +48,16 @@ global change_task_int
 
 
 
-
+extern interrupts_enabled
 enable_int:
+    mov eax, 1
+    mov [interrupts_enabled], eax
 	sti
     ret
 
 disable_int:
+    mov eax, 0
+    mov [interrupts_enabled], eax
     cli
     ret
 
@@ -67,27 +71,27 @@ idt_load:
     ret
 
 int21h:
-    cli
+    call disable_int
     pushad
     call int21h_handler
     popad
-    sti
+    call enable_int
     iret
 
 int32h:
-    cli
+    call disable_int
     pushad
     call int32h_handler
     popad
-    sti
+    call enable_int
     iret
 
 no_interrupt:
-    cli
+    call disable_int
     pushad
     call finish_int
     popad
-    sti
+    call enable_int
     iret
 
 
@@ -100,7 +104,9 @@ printINT:
     iret
 
 quit_appINT:
+    call disable_int
     call idt_quit_appINT
+    call enable_int
     iret
 
 inputINT:
@@ -160,7 +166,7 @@ create_task_int:
 
     mov eax, [application_adress]
     mov [esp], eax
-
+    call enable_int
     iret
 
 change_task_int:
@@ -172,7 +178,7 @@ change_task_int:
     mov ebx, [new_stack_base_pointer]
     mov esp, eax
     mov ebp, ebx
-    sti
+    call enable_int
     iret
 
 ;MULTI TASKING SYSTEM OVER

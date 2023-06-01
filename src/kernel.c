@@ -84,7 +84,6 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     mouse_start();
     idt_init();
     startKeyboardHandler();
-    enable_int();
     disk_init();
     read_from_disk();
     get_hz(5000);
@@ -105,15 +104,17 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     }
 
     start_terminal_mode();
-
+    enable_int();
+    while (1) // DO NOT DELETE THIS LOOP PLEASE
+    {
+    }
     // divide_zero();
 }
 
 /*
-    top 10 planos do ano
-criar el botador de fixero aparte amigo :D PITON
-tentare rodare programe
-
+fix la multitasking
+create la quite de multitasking
+fix da raycastiing problema
 
 //top 1 objetivo é criar o minimo de suporte para aplicaçoes tipo uma calculadora(dar info do rato, dar upload a app pre compilada)
 

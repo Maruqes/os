@@ -36,6 +36,8 @@ int clock_ticks = 0;
 int is_sleeping = 0;
 int hz;
 
+unsigned int interrupts_enabled;
+
 void get_hz(float hzz)
 {
     hz = hzz;
@@ -49,8 +51,8 @@ void call_multi_tasking_system()
     clock_ticks++;
     if (clock_ticks >= 1000)
     {
+        print("M");
         clock_ticks = 0;
-        disable_int();
         change_tasks();
     }
 }
@@ -67,8 +69,10 @@ void finish_int()
 
 void finish_int_slave_pic()
 {
-    outb(0xA0, 0x20);
+    if (interrupts_enabled == 0)
+        return;
 
+    outb(0xA0, 0x20);
     call_multi_tasking_system();
 
     if (is_sleeping)
@@ -143,6 +147,7 @@ void idt_printINT(int address)
 
 void idt_quit_appINT()
 {
+    quit_curApp();
     if (terminal_mode == 0)
         start_terminal_mode();
 }
@@ -219,6 +224,7 @@ void int32h_handler()
 
 void idt_init()
 {
+    disable_int();
     function_given_counter = 0;
 
     // PIC

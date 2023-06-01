@@ -1,6 +1,7 @@
 #include "keyboardHandler.h"
 #include "kernel.h"
 #include "terminal/terminal.h"
+#include "exec/exec.h"
 
 struct keys_from_code_to_ascii keys_struct[170];
 char a[2];
@@ -85,9 +86,23 @@ void handleRawInfoFromKeyBoard(char c)
         {
             return;
         }
-
         if (c == keys_struct[i].code)
         {
+            if (keys_struct[i].ascii_code == 'B')
+            {
+                execute("OIU");
+                return;
+            }
+            if (keys_struct[i].ascii_code == 'N')
+            {
+                execute("ABC");
+                return;
+            }
+            if (keys_struct[i].ascii_code == 'M')
+            {
+                execute("PFF");
+                return;
+            }
             lastKeyPressed = keys_struct[i].code;
 
             if (terminal_mode == 1)

@@ -20,6 +20,7 @@ void create_task(void *addr_program, uint16_t p_offset, char *filename);
 void set_old_ptr();
 void quit_app(uint32_t pid);
 void printPID();
+void quit_curApp();
 extern unsigned int tasks_n;
 
 extern uint32_t *new_stack_pointer;

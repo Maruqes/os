@@ -8,6 +8,7 @@
 
 void execute(char *fileName)
 {
+    disable_int();
     void *addr_program;
     uint16_t p_offset;
 

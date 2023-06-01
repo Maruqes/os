@@ -60,6 +60,11 @@ void delete_task(int n)
 void end_task()
 {
     Task task = get_task(cur_task);
+    if (task.end_task == 0)
+    {
+        print("ERROR ENDING TASK");
+        return;
+    }
     free(task.addr_program);
     free(task.start_stack_pointer);
     delete_task(cur_task);
@@ -104,6 +109,8 @@ void change_tasks()
     if (tasks_n < 2)
         return;
 
+    // can change task... continue
+    disable_int();
     if (cur_task == tasks_n - 1)
     {
         cur_task = 0;
@@ -157,6 +164,7 @@ void set_old_ptr()
 
 void quit_app(uint32_t pid)
 {
+    disable_int();
     for (int i = 0; i < tasks_n; i++) // get correct task
     {
         Task task = get_task(i);
@@ -172,6 +180,13 @@ void quit_app(uint32_t pid)
             return;
         }
     }
+    enable_int();
+}
+
+void quit_curApp()
+{
+    Task t = get_task(cur_task);
+    quit_app(t.pid);
 }
 
 void printPID()
