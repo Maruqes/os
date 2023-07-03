@@ -17,6 +17,20 @@ struct idtr_desc
     uint32_t base;  // Base address of the start of the interrupt descriptor table
 } __attribute__((packed));
 
+typedef struct
+{
+    int ticks;
+    int milliseconds;
+    int seconds;
+    int minutes;
+    int hours;
+
+    char c_seconds[2];
+    char c_minutes[2];
+    char c_hours[2];
+
+} Clock;
+
 void idt_init();
 void enable_int();
 void disable_int();
@@ -25,13 +39,14 @@ void get_hz(float hz);
 void int21h_handler();
 void int21h_handler_input();
 void int32h_handler();
-void start_count();
-int finish_count();
 void finish_int();
 void finish_int_slave_pic();
 void idt_printINT(int address);
 void stop_sleep();
+Clock *return_clock();
 
 extern void *cur_addr_program;
+extern Clock clock;
+extern unsigned int interrupts_enabled;
 
 #endif

@@ -34,6 +34,8 @@ void put_pixel(int x, int y, int color)
 
 void timer_phase(float hz)
 {
+    get_hz(hz);
+
     uint16_t divisor = 1193180 / hz;
     // Init, Square Wave Mode, non-BCD, first transfer LSB then MSB
     outb(0x43, 0x36);
@@ -72,8 +74,8 @@ void start_OS_FUNCTIONS()
     OS_FUNCTIONS[9] = (void *)get_mouse_info;
     OS_FUNCTIONS[10] = (void *)finish_int;
     OS_FUNCTIONS[11] = (void *)enable_int;
+    OS_FUNCTIONS[12] = (void *)return_clock;
 }
-int pqp = 0;
 
 void kernel_main(unsigned int *MultiBootHeaderStruct)
 {
@@ -86,7 +88,6 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     startKeyboardHandler();
     disk_init();
     read_from_disk();
-    get_hz(5000);
     timer_phase(5000);
     sleep_time = 0;
     execute_function = 0;
@@ -105,6 +106,7 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
 
     start_terminal_mode();
     enable_int();
+
     while (1) // DO NOT DELETE THIS LOOP PLEASE
     {
     }
@@ -112,10 +114,7 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
 }
 
 /*
-fix la multitasking
-create la quite de multitasking
-fix da raycastiing problema
-
+//criar windows management
 //top 1 objetivo é criar o minimo de suporte para aplicaçoes tipo uma calculadora(dar info do rato, dar upload a app pre compilada)
 
 lindo

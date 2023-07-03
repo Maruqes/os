@@ -31,6 +31,9 @@ extern void debbugINT();
 extern void create_task_int();
 extern void change_task_int();
 
+Clock clock;
+int number_of_clocks_to_one_milisecond = 5; // int a = (mills * hz) / 1000;
+
 int timer_ticks = 0;
 int clock_ticks = 0;
 int is_sleeping = 0;
@@ -40,7 +43,15 @@ unsigned int interrupts_enabled;
 
 void get_hz(float hzz)
 {
+    clock.ticks = 0;
+    clock.milliseconds = 0;
+    clock.seconds = 0;
+    clock.minutes = 0;
+    clock.hours = 0;
+    clock.c_hours[0] = 48;
+    clock.c_minutes[0] = 48;
     hz = hzz;
+    number_of_clocks_to_one_milisecond = hz / 1000;
 }
 
 void call_multi_tasking_system()
@@ -51,16 +62,96 @@ void call_multi_tasking_system()
     clock_ticks++;
     if (clock_ticks >= 1000)
     {
-        print("M");
         clock_ticks = 0;
         change_tasks();
     }
+}
+
+Clock *return_clock()
+{
+    return &clock;
+}
+
+void update_time()
+{
+    if (clock.seconds < 10)
+    {
+        write_char_pos(70, 24, '0', 0x00ff00);
+        write_char_pos(71, 24, clock.c_seconds[0], 0x00ff00);
+    }
+    else
+    {
+        write_char_pos(70, 24, clock.c_seconds[0], 0x00ff00);
+        write_char_pos(71, 24, clock.c_seconds[1], 0x00ff00);
+    }
+
+    if (clock.minutes < 10)
+    {
+        write_char_pos(67, 24, '0', 0x00ff00);
+        write_char_pos(68, 24, clock.c_minutes[0], 0x00ff00);
+    }
+    else
+    {
+        write_char_pos(67, 24, clock.c_minutes[0], 0x00ff00);
+        write_char_pos(68, 24, clock.c_minutes[1], 0x00ff00);
+    }
+
+    if (clock.hours < 10)
+    {
+        write_char_pos(64, 24, '0', 0x00ff00);
+        write_char_pos(65, 24, clock.c_hours[0], 0x00ff00);
+    }
+    else
+    {
+        write_char_pos(64, 24, clock.c_hours[0], 0x00ff00);
+        write_char_pos(65, 24, clock.c_hours[1], 0x00ff00);
+    }
+}
+
+void step_clock()
+{
+    if (input_mode == 1)
+    {
+        return;
+    }
+    clock.ticks++;
+
+    if (clock.ticks == number_of_clocks_to_one_milisecond)
+    {
+        clock.milliseconds++;
+        clock.ticks = 0;
+    }
+
+    if (clock.milliseconds == 1000)
+    {
+        clock.seconds++;
+        clock.milliseconds = 0;
+        memcpy(&clock.c_seconds, digit_to_number(clock.seconds), 2);
+        update_time();
+    }
+
+    if (clock.seconds == 60)
+    {
+        clock.minutes++;
+        clock.seconds = 0;
+        memcpy(&clock.c_minutes, digit_to_number(clock.minutes), 2);
+    }
+
+    if (clock.minutes == 60)
+    {
+        clock.hours++;
+        clock.minutes = 0;
+        memcpy(&clock.c_hours, digit_to_number(clock.hours), 2);
+    }
+
+    return;
 }
 
 void finish_int()
 {
     outb(0x20, 0x20);
     call_multi_tasking_system();
+    step_clock();
     if (is_sleeping)
     {
         timer_ticks++;
@@ -69,19 +160,17 @@ void finish_int()
 
 void finish_int_slave_pic()
 {
-    if (interrupts_enabled == 0)
-        return;
-
     outb(0xA0, 0x20);
     call_multi_tasking_system();
 
+    step_clock();
     if (is_sleeping)
     {
         timer_ticks++;
     }
 }
 
-int sleep(int mills)
+int sleep(int mills) // mutlitasking does not work with sleep becouse the sleep is called by "n" callers not adapting to each task calling them
 {
     timer_ticks = 0;
     int a = (mills * hz) / 1000;
@@ -103,18 +192,6 @@ void stop_sleep()
 {
     is_sleeping = 0;
     timer_ticks = 0;
-}
-
-void start_count()
-{
-    timer_ticks = 0;
-    is_sleeping = 1;
-}
-
-int finish_count()
-{
-    is_sleeping = 0;
-    return timer_ticks;
 }
 
 void int21h_handler()

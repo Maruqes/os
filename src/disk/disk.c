@@ -330,6 +330,15 @@ int write_block_file(char *name, void *buf, int size, int starting_byte)
 
 int write_file_to_memory(char *name, void *buf, int size)
 {
+	for (int i = 0; i < disk_save.number_of_files; i++)
+	{
+		struct File f = get_file(i);
+		if (cmpstring(f.name, name))
+		{
+			print("FILE EXISTS");
+			return 1;
+		}
+	}
 	int sizeR = round_to_512(size);
 	int size_of_sectors = sizeR / 512;
 	for (int i = 0; i < disk_save.number_of_files - 1; i++)
@@ -348,6 +357,24 @@ int write_file_to_memory(char *name, void *buf, int size)
 			new_line();
 			print(name);
 			print(" has been createdd");
+			new_line();
+			return 0;
+		}
+	}
+
+	if (disk_save.number_of_files == 1) // caso tenhamos 1 ficheiro e ele estiver tipo no setor 20
+	{
+		struct File f = get_file(0);
+		if (f.start_sector > size_of_sectors)
+		{
+			for (int j = 0; j < size_of_sectors; j++)
+			{
+				disk_write_sector(0 + j, buf + (j * 512));
+			}
+			createFile(name, size_of_sectors, 0, 1); // o .last_sector é ocupado
+			new_line();
+			print(name);
+			print(" has been created");
 			new_line();
 			return 0;
 		}

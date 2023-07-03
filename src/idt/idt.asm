@@ -47,8 +47,9 @@ global create_task_int
 global change_task_int
 
 
-
 extern interrupts_enabled
+
+
 enable_int:
     mov eax, 1
     mov [interrupts_enabled], eax

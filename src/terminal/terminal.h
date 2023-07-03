@@ -28,5 +28,6 @@ char *get_c_slots();
 void input(int size);
 
 extern char *input_str;
+extern int input_mode;
 
 #endif
