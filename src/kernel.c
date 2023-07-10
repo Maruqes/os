@@ -15,7 +15,9 @@
 #include "mouse/mouse.h"
 #include "exec/exec.h"
 #include "multitasking/multitasking.h"
+#include "window_management/window_management.h"
 
+unsigned int *public_MultiBootHeaderStruct;
 unsigned int *framebuffer;
 void divide_zero();
 void setup();
@@ -26,6 +28,8 @@ unsigned int sleep_time;
 void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
 int execute_function;
 uint32_t *main_stack;
+
+unsigned int *swipe_screen_buffer;
 
 void put_pixel(int x, int y, int color)
 {
@@ -72,9 +76,19 @@ void start_OS_FUNCTIONS()
     OS_FUNCTIONS[7] = (void *)new_line;
     OS_FUNCTIONS[8] = (void *)clear_screen;
     OS_FUNCTIONS[9] = (void *)get_mouse_info;
-    OS_FUNCTIONS[10] = (void *)finish_int;
+    OS_FUNCTIONS[10] = (void *)finish_int_without_tasks;
     OS_FUNCTIONS[11] = (void *)enable_int;
     OS_FUNCTIONS[12] = (void *)return_clock;
+    OS_FUNCTIONS[13] = (void *)set_buffer;
+    OS_FUNCTIONS[14] = (void *)zalloc;
+}
+
+void draw_screen()
+{
+    for (int i = 0; i < SCREEN_WIDHT * SCREEN_HEIGHT; i++)
+    {
+        framebuffer[i] = swipe_screen_buffer[i];
+    }
 }
 
 void kernel_main(unsigned int *MultiBootHeaderStruct)
@@ -93,7 +107,7 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     execute_function = 0;
     start_OS_FUNCTIONS();
     multitasking_init();
-
+    swipe_screen_buffer = zalloc(SCREEN_HEIGHT * SCREEN_WIDHT * 4);
     framebuffer = (unsigned int *)MultiBootHeaderStruct[22];
 
     for (int i = 0; i < SCREEN_HEIGHT; i++)

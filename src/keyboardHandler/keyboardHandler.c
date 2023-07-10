@@ -2,11 +2,15 @@
 #include "kernel.h"
 #include "terminal/terminal.h"
 #include "exec/exec.h"
+#include "idt/idt.h"
+#include "multitasking/multitasking.h"
+#include "window_management/window_management.h"
 
 struct keys_from_code_to_ascii keys_struct[170];
 char a[2];
 char lastKeyPressed = 0x00;
 int firstRelease = 0;
+int control_pressed = 0;
 
 void set_key_to_code(int hex, char key)
 {
@@ -93,14 +97,25 @@ void handleRawInfoFromKeyBoard(char c)
                 execute("OIU");
                 return;
             }
-            if (keys_struct[i].ascii_code == 'N')
+            else if (keys_struct[i].ascii_code == 'N')
             {
                 execute("ABC");
                 return;
             }
-            if (keys_struct[i].ascii_code == 'M')
+            else if (keys_struct[i].ascii_code == 'M')
             {
                 execute("PFF");
+                return;
+            }
+            else if (keys_struct[i].ascii_code == -8)
+            {
+                control_pressed = 1;
+                return;
+            }
+            else if (keys_struct[i].ascii_code >= 48 && keys_struct[i].ascii_code <= 57 && control_pressed == 1)
+            {
+                control_pressed = 0;
+                change_screens(keys_struct[i].ascii_code - 48);
                 return;
             }
             lastKeyPressed = keys_struct[i].code;

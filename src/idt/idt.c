@@ -9,6 +9,7 @@
 #include "mouse/mouse.h"
 #include "exec/exec.h"
 #include "multitasking/multitasking.h"
+#include "window_management/window_management.h"
 
 struct idt_desc idt_descriptors[OS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
@@ -38,6 +39,7 @@ int timer_ticks = 0;
 int clock_ticks = 0;
 int is_sleeping = 0;
 int hz;
+int screen_ticks;
 
 unsigned int interrupts_enabled;
 
@@ -48,17 +50,54 @@ void get_hz(float hzz)
     clock.seconds = 0;
     clock.minutes = 0;
     clock.hours = 0;
-    clock.c_hours[0] = 48;
+    clock.c_hours[0] = 48; // 48 = '0'
     clock.c_minutes[0] = 48;
     hz = hzz;
     number_of_clocks_to_one_milisecond = hz / 1000;
 }
 
-void call_multi_tasking_system()
+void update_screen()
 {
-    if (tasks_n < 2)
+    if (tasks_n < 1)
+        return;
+    if (!(buffers_arr[current_window].proc_pid == return_pid(cur_task)))
         return;
 
+    screen_ticks++;
+
+    if (screen_ticks >= 80)
+    {
+
+        screen_ticks = 0;
+        for (int i = 0; i < SCREEN_WIDHT * SCREEN_HEIGHT; i++)
+        {
+            swipe_screen_buffer[i] = buffers_arr[current_window].buffer[i];
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                swipe_screen_buffer[(mouse_struct.y - 3 + j) * SCREEN_WIDHT + mouse_struct.x - 3 + i] = 0x00ff00;
+            }
+        }
+        draw_screen();
+    }
+}
+
+void call_multi_tasking_system()
+{
+    // if (tasks_n == 1)
+    // {
+    //     Task t = get_task(0);
+    //     if (t.end_task == 1)
+    //     {
+    //     }
+    // }
+    // if (tasks_n < 2)
+    //     return;
+
+    if (tasks_n < 1)
+        return;
     clock_ticks++;
     if (clock_ticks >= 1000)
     {
@@ -147,22 +186,26 @@ void step_clock()
     return;
 }
 
-void finish_int()
+void finish_int_without_tasks()
 {
     outb(0x20, 0x20);
-    call_multi_tasking_system();
+}
+
+void finish_int()
+{
     step_clock();
     if (is_sleeping)
     {
         timer_ticks++;
     }
+    call_multi_tasking_system();
+    update_screen();
+    outb(0x20, 0x20);
 }
 
 void finish_int_slave_pic()
 {
     outb(0xA0, 0x20);
-    call_multi_tasking_system();
-
     step_clock();
     if (is_sleeping)
     {
@@ -262,7 +305,7 @@ void int_give_OS_FUNCTIONS()
 int result_screen_test;
 void int_test_screent_INT()
 {
-    if (framebuffer[0] == 0x00ff00 && framebuffer[478601] == 0x00ff00)
+    if (swipe_screen_buffer[0] == 0x00ff00 && swipe_screen_buffer[478601] == 0x00ff00)
     {
         result_screen_test = 1;
     }

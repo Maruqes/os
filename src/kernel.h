@@ -9,11 +9,12 @@ void put_pixel(int x, int y, int color);
 void get_keyboard_input(void *func);
 void clear_pixels_screen();
 void test_jump_program();
+void draw_screen();
 
 extern int terminal_mode;
 extern void (*console_controler)(char);
-extern unsigned int *framebuffer;
 extern void (*OS_FUNCTIONS[OS_EXTERN_FUNCTIONS])();
 extern int execute_function;
+extern unsigned int *swipe_screen_buffer;
 
 #endif

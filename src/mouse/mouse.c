@@ -139,7 +139,7 @@ void handle_mouse_info()
 
     mouse_struct.x = cur_x;
     mouse_struct.y = cur_y;
-    put_pixel(cur_x, cur_y, 0x00ff00);
+    // put_pixel(cur_x, cur_y, 0x00ff00);
 }
 
 Mouse_struct *get_mouse_info()

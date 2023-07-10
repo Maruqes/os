@@ -44,6 +44,7 @@ void finish_int_slave_pic();
 void idt_printINT(int address);
 void stop_sleep();
 Clock *return_clock();
+void finish_int_without_tasks();
 
 extern void *cur_addr_program;
 extern Clock clock;

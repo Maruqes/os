@@ -21,7 +21,10 @@ void set_old_ptr();
 void quit_app(uint32_t pid);
 void printPID();
 void quit_curApp();
+Task get_task();
 extern unsigned int tasks_n;
+extern int cur_task;
+int return_pid(int p);
 
 extern uint32_t *new_stack_pointer;
 extern uint32_t *new_stack_base_pointer;

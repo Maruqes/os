@@ -148,9 +148,7 @@ extern save_current_task_ebp
 
 extern set_old_ptr
 
-
 create_task_int:
-
     mov [save_current_task_esp], esp
     mov [save_current_task_ebp], ebp
     call set_old_ptr
@@ -167,7 +165,6 @@ create_task_int:
 
     mov eax, [application_adress]
     mov [esp], eax
-    call enable_int
     iret
 
 change_task_int:
@@ -179,7 +176,6 @@ change_task_int:
     mov ebx, [new_stack_base_pointer]
     mov esp, eax
     mov ebp, ebx
-    call enable_int
     iret
 
 ;MULTI TASKING SYSTEM OVER

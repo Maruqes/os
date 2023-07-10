@@ -20,5 +20,6 @@ extern char mouse_x;
 extern char mouse_y;
 extern int cur_x;
 extern int cur_y;
+extern Mouse_struct mouse_struct;
 
 #endif

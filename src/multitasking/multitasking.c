@@ -5,6 +5,7 @@
 #include "memory/memory.h"
 #include "idt/idt.h"
 #include "string/string.h"
+#include "window_management/window_management.h"
 
 extern void initialize_task();
 extern void change_task_asm();
@@ -25,11 +26,14 @@ uint32_t *save_current_task_ebp;
 
 void (*application_adress)();
 
+int is_going_to_create_task;
+
 void multitasking_init()
 {
     cur_task = 0;
     tasks_n = 0;
     tasks_pid = 0;
+    is_going_to_create_task = 0;
     tasks_save = zalloc(sizeof(Task) * 256);
 }
 
@@ -76,10 +80,10 @@ void create_task(void *addr_program, uint16_t p_offset, char *filename)
     task.addr_program = addr_program;
     task.p_offset = p_offset;
 
-    task.start_stack_pointer = (uint32_t *)zalloc(2048);
+    task.start_stack_pointer = (uint32_t *)zalloc(4098);
 
     task.stack_pointer = task.start_stack_pointer;
-    task.stack_base_pointer = task.stack_pointer + 2048;
+    task.stack_base_pointer = task.stack_pointer + 4098;
 
     task.pid = tasks_pid;
     tasks_pid += 1;
@@ -91,6 +95,7 @@ void create_task(void *addr_program, uint16_t p_offset, char *filename)
 
     set_task(task, tasks_n);
 
+    is_going_to_create_task = cur_task;
     cur_task = tasks_n;
     tasks_n++;
 
@@ -104,13 +109,23 @@ void create_task(void *addr_program, uint16_t p_offset, char *filename)
     initialize_task();
 }
 
+int return_pid(int p)
+{
+    return get_task(p).pid;
+}
+
 void change_tasks()
 {
+
     if (tasks_n < 2)
         return;
 
     // can change task... continue
+
+    finish_int_without_tasks();
     disable_int();
+    is_going_to_create_task = -1;
+
     if (cur_task == tasks_n - 1)
     {
         cur_task = 0;
@@ -122,8 +137,12 @@ void change_tasks()
 
     Task t_change = get_task(cur_task);
 
-    if (t_change.end_task == 1)
+    if (t_change.end_task == 1) // quit tasks
     {
+        new_line();
+        print("DELETING: ");
+        print(digit_to_number(t_change.pid));
+        new_line();
         end_task();
         if (tasks_n < 2)
             return;
@@ -137,7 +156,6 @@ void change_tasks()
     new_stack_pointer = t_change.stack_pointer;
     new_stack_base_pointer = t_change.stack_base_pointer;
     cur_addr_program = t_change.addr_program + t_change.p_offset;
-
     change_task_asm();
 }
 
@@ -154,6 +172,11 @@ void set_old_ptr()
     else
     {
         save_task_n = cur_task - 1;
+    }
+
+    if (is_going_to_create_task != -1)
+    {
+        save_task_n = is_going_to_create_task;
     }
 
     Task task = get_task(save_task_n);
@@ -201,4 +224,7 @@ void printPID()
         print(task.task_name);
         new_line();
     }
+    new_line();
+    print("NTASK: ");
+    print(digit_to_number(tasks_n));
 }
