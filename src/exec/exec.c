@@ -21,8 +21,9 @@ void execute(char *fileName)
         print("FILE does not exist");
         return;
     }
-    addr_program = zalloc(tfile.number_of_sectors * 512);
-    int a = read_file(tfile.name, addr_program, tfile.number_of_sectors * 512);
+    int program_length = tfile.number_of_sectors * 512;
+    addr_program = zalloc(program_length);
+    int a = read_file(tfile.name, addr_program, program_length);
     if (a == -1)
     {
         print("cannot execute file");
@@ -37,6 +38,13 @@ void execute(char *fileName)
         return;
     }
     memcpy(&p_offset, addr_program + elf_struct.e_phoff + 4, 4);
-
-    create_task(addr_program, p_offset, tfile.name);
+    if (p_offset != 0x1000)
+    {
+        new_line();
+        print("PROGRAM OFFSET IS NOT 0X1000");
+        while (1)
+        {
+        }
+    }
+    create_task(addr_program, p_offset, tfile.name, (program_length));
 }

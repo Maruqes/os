@@ -74,7 +74,7 @@ void end_task()
     delete_task(cur_task);
 }
 
-void create_task(void *addr_program, uint16_t p_offset, char *filename)
+void create_task(void *addr_program, uint16_t p_offset, char *filename, int program_length)
 {
     Task task;
     task.addr_program = addr_program;
@@ -104,8 +104,103 @@ void create_task(void *addr_program, uint16_t p_offset, char *filename)
     application_adress = (addr_program + p_offset);
     cur_addr_program = application_adress;
 
-    new_line();
+    for (int i = 0; i < program_length; i++)
+    {
 
+        // check for "(experimental)"
+
+        if (*(char *)(addr_program + i) == 0x28 &&
+            *(char *)(addr_program + i + 1) == 0x65 &&
+            *(char *)(addr_program + i + 2) == 0x78 &&
+            *(char *)(addr_program + i + 3) == 0x70 &&
+            *(char *)(addr_program + i + 4) == 0x65 &&
+            *(char *)(addr_program + i + 5) == 0x72 &&
+            *(char *)(addr_program + i + 6) == 0x69 &&
+            *(char *)(addr_program + i + 7) == 0x6D &&
+            *(char *)(addr_program + i + 8) == 0x65 &&
+            *(char *)(addr_program + i + 9) == 0x6E &&
+            *(char *)(addr_program + i + 10) == 0x74 &&
+            *(char *)(addr_program + i + 11) == 0x61 &&
+            *(char *)(addr_program + i + 12) == 0x6C &&
+            *(char *)(addr_program + i + 13) == 0x29)
+        {
+            for (int j = 0; j < program_length - j; j++) // check for00 00 00 00   00 00 00 00   03 00 01 00   00   00   00 00
+            {
+                if (*(char *)(addr_program + i + j) == 0x00 &&
+                    *(char *)(addr_program + i + j + 1) == 0x00 &&
+                    *(char *)(addr_program + i + j + 2) == 0x00 &&
+                    *(char *)(addr_program + i + j + 3) == 0x00 &&
+                    *(char *)(addr_program + i + j + 4) == 0x00 &&
+                    *(char *)(addr_program + i + j + 5) == 0x00 &&
+                    *(char *)(addr_program + i + j + 6) == 0x00 &&
+                    *(char *)(addr_program + i + j + 7) == 0x00 &&
+                    *(char *)(addr_program + i + j + 8) == 0x03 &&
+                    *(char *)(addr_program + i + j + 9) == 0x00 &&
+                    *(char *)(addr_program + i + j + 10) == 0x01 &&
+                    *(char *)(addr_program + i + j + 11) == 0x00 &&
+                    *(char *)(addr_program + i + j + 12) == 0x00 &&
+                    *(char *)(addr_program + i + j + 13) == 0x00 &&
+                    *(char *)(addr_program + i + j + 14) == 0x00 &&
+                    *(char *)(addr_program + i + j + 15) == 0x00)
+                {
+                    int k = 0;
+                    while (true)
+                    {
+                        if (*(char *)(addr_program + i + j + k) == 0x00 && // search for addresses
+                            *(char *)(addr_program + i + j + k + 1) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 2) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 3) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 4) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 5) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 6) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 7) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 8) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 9) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 10) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 11) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 12) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 13) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 14) == 0x00 &&
+                            *(char *)(addr_program + i + j + k + 15) == 0x00)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            char bytes[16];
+                            memset(bytes, 0, 16);
+                            for (int l = 0; l < 16; l++)
+                            {
+                                bytes[l] = *(char *)(addr_program + i + j + (k * 16) + l);
+                                if (bytes[l] == 0x80)
+                                {
+                                    new_line();
+                                    print("WTF");
+                                    new_line();
+                                }
+                            }
+                            if (bytes[8] == 0x11 && bytes[10] == 0x3)
+                            {
+                            }
+                        }
+                        k++;
+                    }
+                }
+            }
+        }
+
+        // if (*(char *)(addr_program + i) == 0x74 && *(char *)(addr_program + i + 1) == 0x08)
+        // {
+        //     print("ADDR FOUND AT: ");
+        //     printN(i);
+        //     new_line();
+        //     int w_addr = 0x874 + (int)addr_program + 0x1000; // o mais 0x1000 é pq do offset do proprimo programa executavel q começa no binario em 0x1000
+
+        //     memcpy(addr_program + i, &w_addr, 4);
+        // }
+    }
+
+    new_line();
     initialize_task();
 }
 
@@ -227,4 +322,9 @@ void printPID()
     new_line();
     print("NTASK: ");
     print(digit_to_number(tasks_n));
+}
+
+void *get_prgm_offset()
+{
+    return cur_addr_program;
 }

@@ -67,6 +67,8 @@ void update_screen()
 
     if (screen_ticks >= 80)
     {
+        if (buffers_arr[current_window].used == 0)
+            return;
 
         screen_ticks = 0;
         for (int i = 0; i < SCREEN_WIDHT * SCREEN_HEIGHT; i++)

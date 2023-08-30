@@ -45,6 +45,7 @@ void idt_printINT(int address);
 void stop_sleep();
 Clock *return_clock();
 void finish_int_without_tasks();
+void idt_set(int interrupt_no, void *address);
 
 extern void *cur_addr_program;
 extern Clock clock;

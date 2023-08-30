@@ -23,6 +23,7 @@
         "memory": "c",
         "new": "c",
         "numeric": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "window_management.h": "c"
     }
 }

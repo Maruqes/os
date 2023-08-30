@@ -1,4 +1,5 @@
 #include "memory.h"
+#include "idt/idt.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -19,6 +20,17 @@ void *memcpy(void *dist, void *source, size_t size)
 {
     char *c_ptr = (char *)dist;
     char *c_ptr2 = (char *)source;
+    for (int i = 0; i < size; i++)
+    {
+        c_ptr[i] = c_ptr2[i];
+    }
+    return dist;
+}
+
+void *memcpy_prgm(void *dist, int source, size_t size)
+{
+    char *c_ptr = (char *)dist;
+    char *c_ptr2 = (char *)(cur_addr_program + source);
     for (int i = 0; i < size; i++)
     {
         c_ptr[i] = c_ptr2[i];

@@ -81,6 +81,7 @@ void start_OS_FUNCTIONS()
     OS_FUNCTIONS[12] = (void *)return_clock;
     OS_FUNCTIONS[13] = (void *)set_buffer;
     OS_FUNCTIONS[14] = (void *)zalloc;
+    OS_FUNCTIONS[15] = (void *)memcpy_prgm;
 }
 
 void draw_screen()

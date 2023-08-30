@@ -16,12 +16,13 @@ typedef struct
 
 void change_tasks();
 void multitasking_init();
-void create_task(void *addr_program, uint16_t p_offset, char *filename);
+void create_task(void *addr_program, uint16_t p_offset, char *filename, int program_length);
 void set_old_ptr();
 void quit_app(uint32_t pid);
 void printPID();
 void quit_curApp();
 Task get_task();
+void *get_prgm_offset();
 extern unsigned int tasks_n;
 extern int cur_task;
 int return_pid(int p);

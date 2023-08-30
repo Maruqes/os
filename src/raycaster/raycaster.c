@@ -476,7 +476,7 @@ void raycaster_init()
 
         for (int i = 0; i < screen_buffer_size; i++)
         {
-            framebuffer[i] = screenbuffer_save[i];
+            swipe_screen_buffer[i] = screenbuffer_save[i];
         }
     }
     // quit_app();

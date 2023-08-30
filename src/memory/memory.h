@@ -12,6 +12,7 @@
 void *memset(void *ptr, int c, size_t size);
 int memcmp(void *s1, void *s2, int count);
 void *memcpy(void *dist, void *source, size_t size);
+void *memcpy_prgm(void *dist, int source, size_t size);
 void *malloc(size_t size);
 void *zalloc(int size);
 void free(void *ptr);
