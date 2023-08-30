@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "cmath": "c",
+        "complex.h": "c",
+        "math.h": "c",
+        "stdint.h": "c",
+        "stddef.h": "c",
+        "os.h": "c"
+    }
+}

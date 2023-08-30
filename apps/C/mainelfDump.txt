@@ -1,0 +1,109 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           Intel 80386
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          13260 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         1
+  Size of section headers:           40 (bytes)
+  Number of section headers:         16
+  Section header string table index: 15
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 0007a7 00  AX  0   0 16
+  [ 2] .rodata           PROGBITS        000007a7 0017a7 00009c 00   A  0   0  1
+  [ 3] .data             PROGBITS        00000844 001844 000004 00  WA  0   0  4
+  [ 4] .bss              NOBITS          00000860 001848 000044 00  WA  0   0 32
+  [ 5] .comment          PROGBITS        00000000 001848 00002a 01  MS  0   0  1
+  [ 6] .debug_aranges    PROGBITS        00000000 001872 000040 00      0   0  1
+  [ 7] .debug_info       PROGBITS        00000000 0018b2 0007c9 00      0   0  1
+  [ 8] .debug_abbrev     PROGBITS        00000000 00207b 00033f 00      0   0  1
+  [ 9] .debug_line       PROGBITS        00000000 0023ba 000348 00      0   0  1
+  [10] .debug_frame      PROGBITS        00000000 002704 000420 00      0   0  4
+  [11] .debug_str        PROGBITS        00000000 002b24 000304 01  MS  0   0  1
+  [12] .debug_line_str   PROGBITS        00000000 002e28 00006d 01  MS  0   0  1
+  [13] .symtab           SYMTAB          00000000 002e98 0002c0 10     14   8  4
+  [14] .strtab           STRTAB          00000000 003158 0001d8 00      0   0  1
+  [15] .shstrtab         STRTAB          00000000 003330 00009a 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  p (processor specific)
+
+There are no section groups in this file.
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOAD           0x001000 0x00000000 0x00000000 0x00848 0x008a4 RWE 0x1000
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .text .rodata .data .bss 
+
+There is no dynamic section in this file.
+
+There are no relocations in this file.
+
+The decoding of unwind sections for machine type Intel 80386 is not currently supported.
+
+Symbol table '.symtab' contains 44 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 FILE    LOCAL  DEFAULT  ABS main_jump.asm
+     2: 00000000     0 NOTYPE  LOCAL  DEFAULT    1 main_start
+     3: 00000000     0 FILE    LOCAL  DEFAULT  ABS main.c
+     4: 00000000     0 FILE    LOCAL  DEFAULT  ABS asm.asm
+     5: 000000b5     0 NOTYPE  LOCAL  DEFAULT    1 test_screen_buff[...]
+     6: 000000b5     0 NOTYPE  LOCAL  DEFAULT    1 mensagem
+     7: 00000000     0 FILE    LOCAL  DEFAULT  ABS os.c
+     8: 00000844     4 OBJECT  GLOBAL DEFAULT    3 fodasse
+     9: 00000100    13 FUNC    GLOBAL DEFAULT    1 print_addr
+    10: 00000110    22 FUNC    GLOBAL DEFAULT    1 get_screen_access
+    11: 000000d0    13 FUNC    GLOBAL DEFAULT    1 print
+    12: 000000a9     0 NOTYPE  GLOBAL DEFAULT    1 printADDRASM
+    13: 000000ac     0 NOTYPE  GLOBAL DEFAULT    1 get_screen_accessASM
+    14: 000002b0    42 FUNC    GLOBAL DEFAULT    1 memcpy_prgm
+    15: 00000010     8 FUNC    GLOBAL DEFAULT    1 fds
+    16: 000003b0   399 FUNC    GLOBAL DEFAULT    1 sleep_this
+    17: 00000280    42 FUNC    GLOBAL DEFAULT    1 memcpy
+    18: 00000340    15 FUNC    GLOBAL DEFAULT    1 enable_int
+    19: 00000190    34 FUNC    GLOBAL DEFAULT    1 malloc
+    20: 00000170    25 FUNC    GLOBAL DEFAULT    1 sleep
+    21: 00000230    22 FUNC    GLOBAL DEFAULT    1 test_screen_buffer
+    22: 000000e0    28 FUNC    GLOBAL DEFAULT    1 input
+    23: 00000310    15 FUNC    GLOBAL DEFAULT    1 new_line
+    24: 000000a0     0 NOTYPE  GLOBAL DEFAULT    1 printASM
+    25: 000000af     0 NOTYPE  GLOBAL DEFAULT    1 get_addrASM
+    26: 00000860    68 OBJECT  GLOBAL DEFAULT    4 OS_FUNCTIONS
+    27: 00000130    57 FUNC    GLOBAL DEFAULT    1 get_OS_FUNCTIONS_addr
+    28: 00000390    24 FUNC    GLOBAL DEFAULT    1 set_buffer
+    29: 000002e0    42 FUNC    GLOBAL DEFAULT    1 memcmp
+    30: 000000a3     0 NOTYPE  GLOBAL DEFAULT    1 quit_app
+    31: 00000560   583 FUNC    GLOBAL DEFAULT    1 test_prgm
+    32: 00000250    42 FUNC    GLOBAL DEFAULT    1 memset
+    33: 00000020   118 FUNC    GLOBAL DEFAULT    1 main
+    34: 00000350    24 FUNC    GLOBAL DEFAULT    1 get_mouse_info
+    35: 00000330    15 FUNC    GLOBAL DEFAULT    1 finish_int
+    36: 00000210    25 FUNC    GLOBAL DEFAULT    1 print_2
+    37: 000000b2     0 NOTYPE  GLOBAL DEFAULT    1 test_screen_bufferASM
+    38: 000001c0    34 FUNC    GLOBAL DEFAULT    1 zalloc
+    39: 00000370    24 FUNC    GLOBAL DEFAULT    1 get_clock
+    40: 00000320    15 FUNC    GLOBAL DEFAULT    1 clear_screen
+    41: 000000a6     0 NOTYPE  GLOBAL DEFAULT    1 inputASM
+    42: 000001f0    25 FUNC    GLOBAL DEFAULT    1 free
+    43: 00000540    24 FUNC    GLOBAL DEFAULT    1 get_prgm_offset
+
+No version information found in this file.
