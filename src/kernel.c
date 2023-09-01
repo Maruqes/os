@@ -132,8 +132,8 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
         }
     }
 
-    enable_int();
     start_terminal_mode();
+    enable_int();
 
     while (1) // DO NOT DELETE THIS LOOP PLEASE
     {
