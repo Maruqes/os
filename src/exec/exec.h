@@ -20,5 +20,7 @@ typedef struct
 } Elf32Hdr;
 
 void execute(char *fileName);
+void dot_data();
+void dot_rodata();
 
 #endif

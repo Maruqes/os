@@ -48,3 +48,37 @@ void execute(char *fileName)
     }
     create_task(addr_program, p_offset, tfile.name, (program_length));
 }
+
+// program crashes
+
+void dot_data()
+{
+    clear_screen();
+    for (int i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (int j = 0; j < SCREEN_WIDHT; j++)
+        {
+            put_pixel(j, i, 0xff0000);
+        }
+    }
+    print(".DATA ERROR");
+    while (1)
+    {
+    }
+}
+
+void dot_rodata()
+{
+    clear_screen();
+    for (int i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (int j = 0; j < SCREEN_WIDHT; j++)
+        {
+            put_pixel(j, i, 0xff0000);
+        }
+    }
+    print(".RODATA ERROR");
+    while (1)
+    {
+    }
+}

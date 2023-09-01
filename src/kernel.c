@@ -64,6 +64,18 @@ void clear_pixels_screen()
     }
 }
 
+void program_error(int error)
+{
+    clear_screen();
+    for (int i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (int j = 0; j < SCREEN_WIDHT; j++)
+        {
+            put_pixel(j, i, error);
+        }
+    }
+}
+
 void start_OS_FUNCTIONS()
 {
     OS_FUNCTIONS[0] = (void *)sleep;
@@ -82,6 +94,7 @@ void start_OS_FUNCTIONS()
     OS_FUNCTIONS[13] = (void *)set_buffer;
     OS_FUNCTIONS[14] = (void *)zalloc;
     OS_FUNCTIONS[15] = (void *)memcpy_prgm;
+    OS_FUNCTIONS[16] = (void *)program_error;
 }
 
 void draw_screen()

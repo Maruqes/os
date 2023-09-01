@@ -44,5 +44,9 @@ void sleep_this(int mills);
 void print(char *a);
 void test_prgm();
 void *zalloc(unsigned long size);
-int get_prgm_offset();
+void program_error(int error);
+
+// syscalls for program crashes
+void dot_data_crash();
+void dot_rodata_crash();
 #endif

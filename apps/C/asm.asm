@@ -5,7 +5,11 @@ global printADDRASM
 global get_screen_accessASM
 global get_addrASM
 global test_screen_bufferASM
-global testesCRL
+
+
+;program crashes
+global dot_data_crash
+global dot_rodata_crash
 
 
 
@@ -35,6 +39,15 @@ get_addrASM:
 
 test_screen_bufferASM:
         int 20
+        ret
+
+
+dot_data_crash:
+        int 50
+        ret
+
+dot_rodata_crash:
+        int 51
         ret
 
 

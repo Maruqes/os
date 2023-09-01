@@ -270,16 +270,9 @@ void sleep_this(int mills)
     free(sum_clock);
 }
 
-int get_prgm_offset()
+void program_error(int error)
 {
-    int return_Addr;
-    (*OS_FUNCTIONS[16])();
-    asm volatile("mov %0, eax"
-                 : "=r"(return_Addr)
-                 :
-                 :);
-
-    return return_Addr;
+    (*OS_FUNCTIONS[16])((int)error);
 }
 
 void test_prgm()

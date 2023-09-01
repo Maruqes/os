@@ -263,8 +263,7 @@ void *cur_addr_program;
 
 void idt_printINT(int address)
 {
-    print((char *)(cur_addr_program + address)); // probemas no linker do programa
-    // print((char *)(addr_program + 0x2178));
+    print((char *)(address));
 }
 
 void idt_quit_appINT()
@@ -392,6 +391,10 @@ void idt_init()
     idt_set(23, get_addrINT);      // sleep
     idt_set(24, create_task_int);  // create_task_int
     idt_set(25, change_task_int);  // debuug3
+
+    // program crashes
+    idt_set(50, dot_data);   // crash .data
+    idt_set(51, dot_rodata); // crash .rodata
 
     // keyboard, mouse, tela
 
