@@ -164,24 +164,22 @@ void fix_program_addresses(void *addr_program, int program_length)
 {
     for (int i = 0; i < program_length; i++)
     {
-        // check for "(experimental)"
+        // check for "gcc version 1.13.0"
         if (*(char *)(addr_program + i) == 0x28 &&
-            *(char *)(addr_program + i + 1) == 0x65 &&
-            *(char *)(addr_program + i + 2) == 0x78 &&
-            *(char *)(addr_program + i + 3) == 0x70 &&
-            *(char *)(addr_program + i + 4) == 0x65 &&
-            *(char *)(addr_program + i + 5) == 0x72 &&
-            *(char *)(addr_program + i + 6) == 0x69 &&
-            *(char *)(addr_program + i + 7) == 0x6D &&
-            *(char *)(addr_program + i + 8) == 0x65 &&
-            *(char *)(addr_program + i + 9) == 0x6E &&
-            *(char *)(addr_program + i + 10) == 0x74 &&
-            *(char *)(addr_program + i + 11) == 0x61 &&
-            *(char *)(addr_program + i + 12) == 0x6C &&
-            *(char *)(addr_program + i + 13) == 0x29)
+            *(char *)(addr_program + i + 1) == 0x47 &&
+            *(char *)(addr_program + i + 2) == 0x4E &&
+            *(char *)(addr_program + i + 3) == 0x55 &&
+            *(char *)(addr_program + i + 4) == 0x29 &&
+            *(char *)(addr_program + i + 5) == 0x20 &&
+            *(char *)(addr_program + i + 6) == 0x31 &&
+            *(char *)(addr_program + i + 7) == 0x33 &&
+            *(char *)(addr_program + i + 8) == 0x2E &&
+            *(char *)(addr_program + i + 9) == 0x31 &&
+            *(char *)(addr_program + i + 10) == 0x2E &&
+            *(char *)(addr_program + i + 11) == 0x30)
         {
             new_line();
-            print("EXP FOUND");
+            print("VERION 1.13.0 FOUND");
             for (int j = 0; j < program_length - j; j++) // check for00 00 00 00   00 00 00 00   03 00 01 00   00   00   00 00
             {
                 if (*(char *)(addr_program + i + j) == 0x00 &&
@@ -202,9 +200,11 @@ void fix_program_addresses(void *addr_program, int program_length)
                     *(char *)(addr_program + i + j + 15) == 0x00)
                 {
                     new_line();
-                    print("CODE FOUND");
+                    print("RANDOM CODE  03 00 01  FOUND");
                     int k = 0;
 
+                    new_line();
+                    print("SEARCHING FOR ADDRESSES");
                     while (true)
                     {
                         if (*(char *)(addr_program + i + j + k) == 0x00 && // search for addresses
@@ -228,6 +228,8 @@ void fix_program_addresses(void *addr_program, int program_length)
                         }
                         else
                         {
+
+                            // updatezada por causa das versoes do gcc, tens o add do "GCC: (GNU)" rumores dizem q 0x12 bytes dps começa a symbol table
                             char bytes[16];
 
                             change_dot_data_addresses(bytes, addr_program, i + j + (k * 16), program_length);

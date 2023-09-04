@@ -25,5 +25,9 @@
         "numeric": "c",
         "system_error": "c",
         "window_management.h": "c"
-    }
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none"
 }

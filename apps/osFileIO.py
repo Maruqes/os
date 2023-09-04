@@ -4,7 +4,8 @@ import os
 DISK_STRUCT_SECTOR = 1
 OS_SECTORS = 20020
 HEADER_SECTORS = 512
-file_name = (r"\\wsl.localhost\Debian\home\marques\os\myos.iso")
+file_name = (r"/home/marquess/Desktop/os/myos.iso")
+update_file_name = (r"/home/marquess/Desktop/os/apps/C/main")
 sector_n = OS_SECTORS + HEADER_SECTORS
 
 STARING_FILE_SECTOR = DISK_STRUCT_SECTOR - HEADER_SECTORS + sector_n
@@ -82,7 +83,7 @@ os_save = os_file_read.read(os.stat(file_name).st_size)
 print("Number of file to rewrite (starts in 0): ")
 number_of_file_to_rewrite = int(input())
 print("Path to file: ")
-path_of_file_to_rewrite = input()
+path_of_file_to_rewrite = update_file_name
 
 file_rewrite = open(path_of_file_to_rewrite, 'rb')
 data = file_rewrite.read()

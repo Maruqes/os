@@ -8,7 +8,7 @@ FLAGS = -m32 -masm=intel -g -ffreestanding -falign-jumps -falign-functions -fali
 all: $(FILES)
 	i686-elf-ld -g -relocatable $(FILES) -o ./build/mainJoin.o
 	i686-elf-gcc -T linker.ld -o main -ffreestanding -O2 -nostdlib ./build/mainJoin.o
-	strip --strip-debug --discard-all main
+	strip --strip-debug --discard-all --keep-section-symbols main
 
 
 ./build/asm.o: ./asm.asm
