@@ -4,8 +4,8 @@ import os
 DISK_STRUCT_SECTOR = 1
 OS_SECTORS = 20020
 HEADER_SECTORS = 512
-file_name = (r"/home/marquess/Desktop/os/myos.iso")
-update_file_name = (r"/home/marquess/Desktop/os/apps/C/main")
+file_name = (r"..\myos.iso")
+update_file_name = (r"\home\marques\os\apps\C\main")
 sector_n = OS_SECTORS + HEADER_SECTORS
 
 STARING_FILE_SECTOR = DISK_STRUCT_SECTOR - HEADER_SECTORS + sector_n
