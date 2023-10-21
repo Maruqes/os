@@ -7,6 +7,12 @@ global get_addrASM
 global test_screen_bufferASM
 
 
+;program crashes
+global dot_data_crash
+global dot_rodata_crash
+
+
+
 printASM:
         int 16 ;CD 3C
         ret
@@ -36,7 +42,13 @@ test_screen_bufferASM:
         ret
 
 
+dot_data_crash:
+        int 50
+        ret
 
+dot_rodata_crash:
+        int 51
+        ret
 
 
 .data:

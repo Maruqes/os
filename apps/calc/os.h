@@ -28,7 +28,6 @@ void *get_screen_access();
 void get_OS_FUNCTIONS_addr();
 void sleep(unsigned int mills);
 void *malloc(unsigned long size);
-void *zalloc(unsigned long size);
 void free(void *ptr);
 void print_2(char *str);
 int test_screen_buffer();
@@ -44,9 +43,14 @@ Clock *get_clock();
 void sleep_this(int mills);
 void print(char *a);
 void test_prgm();
-void quit_app();
-void *memcpy_prgm(void *dist, void *source, size_t size);
+void *zalloc(unsigned long size);
+void program_error(int error);
 unsigned int *set_buffer();
-int get_prgm_offset();
 
+// syscalls for program crashes
+void dot_data_crash();
+void dot_rodata_crash();
+
+int test_dot_data();
+int test_ro_data();
 #endif

@@ -11,6 +11,8 @@ int mouse_pressed;
 
 int opp;
 
+extern void quit_app();
+
 char letters[18][7][5] = {
     {
         {"-###-"},
@@ -199,6 +201,7 @@ char *digit_to_number(int n)
 
     free(t);
     t = zalloc(count + 1);
+
     t[count + 1] = '\0';
     for (int j = 0; j < count; j++)
     {
@@ -206,14 +209,14 @@ char *digit_to_number(int n)
 
         for (int i = 0; i < count - (1 * (j + 1)); i++)
         {
-            res = res / 10;
+            // res = res / 10;
         }
 
         t[j] = res + '0';
 
         for (int i = 0; i < count - (1 * (j + 1)); i++)
         {
-            res = res * 10;
+            // res = res * 10;
         }
 
         n = n - res;
@@ -604,11 +607,26 @@ void calculate_solution(unsigned int *buf)
 int main()
 {
     get_OS_FUNCTIONS_addr();
-    finish_int();
-    enable_int();
 
-    // clear_screen();
-    // test_prgm();
+    enable_int();
+    finish_int();
+
+    char *runn = "RUNNING...";
+
+    print(runn);
+
+    new_line();
+    if (test_dot_data() == 0)
+    {
+        dot_data_crash();
+        return 0;
+    }
+
+    if (test_ro_data() == 0)
+    {
+        // dot_rodata_crash();
+        return 0;
+    }
 
     unsigned int *buf = set_buffer(); // checkar por 0
 
@@ -629,7 +647,7 @@ int main()
     draw_y_line(150, 600, 134, buf, 0xffffff);
 
     lett = zalloc(18 * 7 * 5);
-    memcpy_prgm(lett, letters, 18 * 7 * 5);
+    memcpy(lett, letters, 18 * 7 * 5);
 
     draw_calc_numbers(buf);
 

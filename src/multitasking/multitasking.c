@@ -74,6 +74,12 @@ void end_task()
     delete_task(cur_task);
 }
 
+int number_of_changes = 0;
+int number_of_changes2 = 0;
+
+int rodata_addr = -1;
+int rodata_size = -1;
+
 void change_dot_data_addresses(char bytes[16], void *addr_program, int current_byte, int program_length)
 {
     memcpy(bytes, (addr_program + current_byte), 16);
@@ -90,6 +96,7 @@ void change_dot_data_addresses(char bytes[16], void *addr_program, int current_b
             if (test_address == change_address)
             {
                 memcpy((addr_program + l), &result_addr, 4);
+                number_of_changes++;
             }
         }
     }
@@ -99,8 +106,7 @@ void change_dot_rodata_addresses(char bytes[16], void *addr_program, int current
 {
     if (bytes[8] == 0x03 && bytes[10] == 0x02) //.rodata
     {
-        int rodata_addr = -1;
-        int rodata_size = -1;
+
         int rodata_addr_test = -1;
         int rodata_addr_confirmation = -1;
         memcpy(&rodata_addr, bytes, 4);
@@ -125,37 +131,55 @@ void change_dot_rodata_addresses(char bytes[16], void *addr_program, int current
         {
             print("RODATA ERROR");
         }
+    }
+}
 
-        int rodata_next_addr;
+void apply_rodata_fixes(void *addr_program, int program_length)
+{
+    int rodata_next_addr;
+    clear_screen();
 
-        for (int n = 0; n < program_length; n++)
+    int is_count = 0;
+
+    for (int n = 0; n < program_length; n++)
+    {
+        memcpy(&rodata_next_addr, (addr_program + n), 4);
+
+        if (rodata_next_addr == rodata_addr)
         {
-            memcpy(&rodata_next_addr, (addr_program + n), 4);
-
-            if (rodata_next_addr == rodata_addr)
-            {
-                rodata_next_addr = rodata_next_addr + (int)addr_program + 0x1000;
-                memcpy((addr_program + n), &rodata_next_addr, 4);
-            }
+            rodata_next_addr = rodata_next_addr + (int)addr_program + 0x1000;
+            memcpy((addr_program + n), &rodata_next_addr, 4);
+            memset(&rodata_next_addr, 0x00, 4);
+            number_of_changes2++;
         }
+    }
 
-        for (int l = 0; l < rodata_size - 1; l++)
+    for (int l = 0; l < rodata_size - 1; l++)
+    {
+        if (*(char *)(addr_program + rodata_addr + l) == 0x00)
         {
-            if (*(char *)(addr_program + rodata_addr + l) == 0x00)
+            int addr_found = (int)(rodata_addr + l + 1);
+
+            for (int n = 0; n < program_length; n++)
             {
-                int addr_found = (int)(rodata_addr + l + 1);
+                memcpy(&rodata_next_addr, (addr_program + n), 4);
 
-                for (int n = 0; n < program_length; n++)
+                if (rodata_next_addr == addr_found)
                 {
-                    memcpy(&rodata_next_addr, (addr_program + n), 4);
-
-                    if (rodata_next_addr == addr_found)
-                    {
-                        rodata_next_addr = rodata_next_addr + (int)addr_program + 0x1000;
-                        memcpy((addr_program + n), &rodata_next_addr, 4);
-                    }
+                    is_count++;
+                    rodata_next_addr = rodata_next_addr + (int)addr_program + 0x1000;
+                    memcpy((addr_program + n), &rodata_next_addr, 4);
+                    memset(&rodata_next_addr, 0x00, 4);
+                    number_of_changes2++;
                 }
             }
+            if (is_count == 0)
+                continue;
+            printN(addr_found);
+            print("--");
+            printN(is_count);
+            print("    ");
+            is_count = 0;
         }
     }
 }
@@ -242,6 +266,7 @@ void fix_program_addresses(void *addr_program, int program_length)
             }
         }
     }
+    apply_rodata_fixes(addr_program, program_length);
 }
 
 void create_task(void *addr_program, uint16_t p_offset, char *filename, int program_length)
@@ -275,6 +300,11 @@ void create_task(void *addr_program, uint16_t p_offset, char *filename, int prog
     cur_addr_program = application_adress;
 
     fix_program_addresses(addr_program, program_length);
+
+    new_line();
+    printN(number_of_changes);
+    new_line();
+    printN(number_of_changes2);
 
     new_line();
     initialize_task();

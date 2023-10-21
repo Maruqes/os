@@ -45,8 +45,12 @@ void print(char *a);
 void test_prgm();
 void *zalloc(unsigned long size);
 void program_error(int error);
+unsigned int *set_buffer();
 
 // syscalls for program crashes
 void dot_data_crash();
 void dot_rodata_crash();
+
+int test_dot_data();
+int test_ro_data();
 #endif
