@@ -4,8 +4,8 @@ import os
 DISK_STRUCT_SECTOR = 1
 OS_SECTORS = 20020
 HEADER_SECTORS = 512
-file_name = (r"..\myos.iso")
-update_file_name = (r"\home\marques\os\apps\C\main")
+file_name = ("/home/marques/os/myos.iso")
+update_file_name = ("/home/marques/os/apps/C/main")
 sector_n = OS_SECTORS + HEADER_SECTORS
 
 STARING_FILE_SECTOR = DISK_STRUCT_SECTOR - HEADER_SECTORS + sector_n
@@ -28,7 +28,6 @@ class File_struct(Structure):
 class disk_save_struct(Structure):
     _fields_ = [('number_of_files', c_int),
                 ('last_sector', c_int)]
-
 
 os_file_read = open(file_name, 'rb')
 

@@ -616,18 +616,19 @@ int main()
     print(runn);
 
     new_line();
-    if (test_dot_data() == 0)
-    {
-        dot_data_crash();
-        return 0;
-    }
+    // if (test_dot_data() == 0)
+    // {
+    //     dot_data_crash();
+    //     return 0;
+    // }
 
-    if (test_ro_data() == 0)
-    {
-        // dot_rodata_crash();
-        return 0;
-    }
+    // if (test_ro_data() == 0)
+    // {
+    //     // dot_rodata_crash();
+    //     return 0;
+    // }
 
+    sleep(5000);
     unsigned int *buf = set_buffer(); // checkar por 0
 
     for (int i = 0; i < 600 * 800; i++)

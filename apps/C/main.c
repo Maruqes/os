@@ -76,17 +76,17 @@ int main()
     print(runn);
 
     new_line();
-    if (test_dot_data() == 0)
-    {
-        // dot_data_crash();
-        return 0;
-    }
+    // if (test_dot_data() == 0)
+    // {
+    //     // dot_data_crash();
+    //     return 0;
+    // }
 
-    if (test_ro_data() == 0)
-    {
-        // dot_rodata_crash();
-        return 0;
-    }
+    // if (test_ro_data() == 0)
+    // {
+    //     // dot_rodata_crash();
+    //     return 0;
+    // }
     print(digit_to_number());
     sleep(5000);
 
