@@ -71,9 +71,13 @@ int main()
     enable_int();
     finish_int();
 
-    char *runn = "RUNNING...";
+    char *runn = "RUNNING...2";
 
-    print(runn);
+    for (int i = 0; i < 10; i++)
+    {
+        print(runn);
+        sleep_this(5000);
+    }
 
     new_line();
     // if (test_dot_data() == 0)

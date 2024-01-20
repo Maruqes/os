@@ -8,6 +8,8 @@ extern test4
 
 global divide_zero
 global setup
+
+
 divide_zero:
     mov ax,0
     div ax

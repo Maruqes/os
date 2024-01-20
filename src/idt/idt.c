@@ -263,7 +263,7 @@ void *cur_addr_program;
 
 void idt_printINT(int address)
 {
-    print((char *)(address));
+    print((char *)(cur_addr_program + address));
 }
 
 void idt_quit_appINT()

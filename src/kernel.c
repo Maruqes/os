@@ -104,7 +104,6 @@ void draw_screen()
         framebuffer[i] = swipe_screen_buffer[i];
     }
 }
-
 void kernel_main(unsigned int *MultiBootHeaderStruct)
 {
     terminal_mode = 1;
