@@ -108,9 +108,9 @@ void handleRawInfoFromKeyBoard(char c)
                 return;
             }
             else if (keys_struct[i].ascii_code == -8)
+            // if (keys_struct[i].ascii_code == -8)
             {
                 control_pressed = 1;
-                return;
             }
             else if (keys_struct[i].ascii_code >= 48 && keys_struct[i].ascii_code <= 57 && control_pressed == 1)
             {
