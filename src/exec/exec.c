@@ -38,14 +38,7 @@ void execute(char *fileName)
         return;
     }
     memcpy(&p_offset, addr_program + elf_struct.e_phoff + 4, 4);
-    if (p_offset != 0x1000)
-    {
-        new_line();
-        print("PROGRAM OFFSET IS NOT 0X1000");
-        while (1)
-        {
-        }
-    }
+
     create_task(addr_program, p_offset, tfile.name, (program_length));
 }
 

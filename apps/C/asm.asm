@@ -1,3 +1,4 @@
+global printCharASM
 global printASM
 global quit_app
 global inputASM
@@ -11,7 +12,9 @@ global test_screen_bufferASM
 global dot_data_crash
 global dot_rodata_crash
 
-
+printCharASM:
+        int 26 ;CD 3C
+        ret
 
 printASM:
         int 16 ;CD 3C

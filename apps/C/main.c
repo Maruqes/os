@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "os.h"
 
+extern void printCharASM();
 extern void printASM();
 extern void quit_app();
 extern void inputASM();
@@ -70,36 +71,37 @@ int main()
 
     enable_int();
     finish_int();
+    
+    printCharASM();
+    // char *runn = "RUNNING...2";
 
-    char *runn = "RUNNING...2";
-
-    for (int i = 0; i < 10; i++)
-    {
-        print(runn);
-        sleep_this(5000);
-    }
-
-    new_line();
-    // if (test_dot_data() == 0)
+    // for (int i = 0; i < 10; i++)
     // {
-    //     // dot_data_crash();
-    //     return 0;
+    //     print(runn);
+    //     sleep_this(5000);
     // }
 
-    // if (test_ro_data() == 0)
+    // new_line();
+    // // if (test_dot_data() == 0)
+    // // {
+    // //     // dot_data_crash();
+    // //     return 0;
+    // // }
+
+    // // if (test_ro_data() == 0)
+    // // {
+    // //     // dot_rodata_crash();
+    // //     return 0;
+    // // }
+    // print(digit_to_number());
+    // sleep(5000);
+
+    // unsigned int *buf = set_buffer();
+    // draw_square_exce(0, 0, 20, 20, buf, 0xff0000);
+
+    // while (1)
     // {
-    //     // dot_rodata_crash();
-    //     return 0;
     // }
-    print(digit_to_number());
-    sleep(5000);
-
-    unsigned int *buf = set_buffer();
-    draw_square_exce(0, 0, 20, 20, buf, 0xff0000);
-
-    while (1)
-    {
-    }
 
     quit_app();
     return 0;

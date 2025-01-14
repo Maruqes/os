@@ -21,6 +21,7 @@ extern void no_interrupt();
 extern void finish_int();
 
 extern void printINT();
+extern void printChar();
 extern void quit_appINT();
 extern void inputINT();
 extern void printADDRINT();
@@ -324,6 +325,11 @@ void int_debbugINT2()
 {
 }
 
+void idt_printChar(char a)
+{
+    write_char(a, 0x00ff00);
+}
+
 ////////
 
 void idt_set(int interrupt_no, void *address)
@@ -391,6 +397,7 @@ void idt_init()
     idt_set(23, get_addrINT);      // sleep
     idt_set(24, create_task_int);  // create_task_int
     idt_set(25, change_task_int);  // debuug3
+    idt_set(26, printChar);        // debuug3
 
     // program crashes
     idt_set(50, dot_data);   // crash .data

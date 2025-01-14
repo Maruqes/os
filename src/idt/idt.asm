@@ -22,6 +22,7 @@ global disable_int
 
 
 extern idt_printINT
+extern idt_printChar
 extern idt_quit_appINT
 extern idt_inputINT
 extern idt_printADDRINT
@@ -36,6 +37,7 @@ extern main_stack
 
 
 global printINT
+global printChar
 global quit_appINT
 global inputINT
 global printADDRINT
@@ -100,6 +102,14 @@ printINT:
     ;pushad
     push eax
     call idt_printINT
+    pop eax
+    ;popad
+    iret
+
+printChar:
+    ;pushad
+    push eax
+    call idt_printChar
     pop eax
     ;popad
     iret
