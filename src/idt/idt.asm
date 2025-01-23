@@ -22,6 +22,7 @@ global disable_int
 
 
 extern idt_printINT
+extern int_malloc_addr
 extern idt_printChar
 extern idt_quit_appINT
 extern idt_inputINT
@@ -37,6 +38,7 @@ extern main_stack
 
 
 global printINT
+global malloc_int
 global printChar
 global quit_appINT
 global inputINT
@@ -104,6 +106,12 @@ printINT:
     call idt_printINT
     pop eax
     ;popad
+    iret
+
+malloc_int:
+    push eax
+    call int_malloc_addr
+    add esp, 4            ; Ajusta a stack (remove 'size')
     iret
 
 printChar:

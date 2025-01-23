@@ -21,6 +21,7 @@ extern void no_interrupt();
 extern void finish_int();
 
 extern void printINT();
+extern void malloc_int();
 extern void printChar();
 extern void quit_appINT();
 extern void inputINT();
@@ -265,6 +266,13 @@ void *cur_addr_program;
 void idt_printINT(int address)
 {
     print((char *)(cur_addr_program + address));
+    new_line();
+}
+
+void *int_malloc_addr(uint32_t size)
+{
+    return malloc(4069);
+    // return malloc(size);
 }
 
 void idt_quit_appINT()
@@ -285,6 +293,7 @@ void idt_inputINT(uint32_t input_len)
 void idt_printADDRINT(char *address)
 {
     print(address);
+    new_line();
 }
 
 void int_screenINT()
@@ -396,8 +405,9 @@ void idt_init()
     idt_set(22, screenINT);        // get_screen_buf
     idt_set(23, get_addrINT);      // sleep
     idt_set(24, create_task_int);  // create_task_int
-    idt_set(25, change_task_int);  // debuug3
+    idt_set(25, change_task_int);  // change_task_int
     idt_set(26, printChar);        // debuug3
+    idt_set(27, malloc_int);
 
     // program crashes
     idt_set(50, dot_data);   // crash .data
