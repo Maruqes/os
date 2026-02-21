@@ -16,6 +16,7 @@
 #include "exec/exec.h"
 #include "multitasking/multitasking.h"
 #include "window_management/window_management.h"
+#include "paging/paging.h"
 
 unsigned int *public_MultiBootHeaderStruct;
 unsigned int *framebuffer;
@@ -30,6 +31,14 @@ int execute_function;
 uint32_t *main_stack;
 
 unsigned int *swipe_screen_buffer;
+
+static void halt_forever(void)
+{
+    while (1)
+    {
+        asm volatile("hlt");
+    }
+}
 
 void put_pixel(int x, int y, int color)
 {
@@ -109,6 +118,11 @@ void kernel_main(unsigned int *MultiBootHeaderStruct)
     terminal_mode = 1;
     i686_GDT_Initialize();
     setup();
+    paging_init();
+    if (!paging_is_enabled())
+    {
+        halt_forever();
+    }
     heap_init();
     mouse_start();
     idt_init();

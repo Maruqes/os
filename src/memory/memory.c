@@ -77,26 +77,36 @@ size_t round_to_4096(size_t size)
 
 void *malloc(size_t size)
 {
+    if (size == 0)
+    {
+        return 0;
+    }
+
     size = (round_to_4096(size));
     uint32_t sector_number = size / 4096;
+    if (sector_number == 0 || sector_number > HEAP_SECTOR_NUMBER)
+    {
+        return 0;
+    }
 
     char *table_ptr = (char *)heap_table_address;
-    for (int i = 0; i < HEAP_SECTOR_NUMBER; i++)
+    for (int i = 0; i <= HEAP_SECTOR_NUMBER - (int)sector_number; i++)
     {
         if (table_ptr[i] == 0x0)
         {
             int found = 0;
-            for (int j = 0; j < sector_number; j++)
+            for (int j = 0; j < (int)sector_number; j++)
             {
                 if (table_ptr[i + j] != 0x0)
                 {
                     found = 1;
+                    break;
                 }
             }
 
             if (found == 0)
             {
-                for (int j = 0; j < sector_number; j++)
+                for (int j = 0; j < (int)sector_number; j++)
                 {
                     table_ptr[i + j] = 0x01;
                 }
@@ -108,11 +118,14 @@ void *malloc(size_t size)
         }
     }
 
-    return (void *)-1;
+    return 0;
 }
 
 void *zalloc(int size)
 {
+    if (size <= 0)
+        return 0;
+
     void *ptr = malloc(size);
     if (!ptr)
         return 0;
@@ -122,6 +135,9 @@ void *zalloc(int size)
 
 void free(void *ptr)
 {
+    if (!ptr)
+        return;
+
     char *table_ptr = (char *)heap_table_address;
 
     for (int i = 0; i < HEAP_SECTOR_NUMBER; i++)

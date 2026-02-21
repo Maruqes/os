@@ -13,24 +13,41 @@ struct disk_save_struct disk_save;
 void *files_addr;
 
 #define STATUS_BSY 0x80
-#define STATUS_RDY 0x40
+#define STATUS_DRQ 0x08
+#define STATUS_ERR 0x01
+#define STATUS_DF 0x20
+#define ATA_TIMEOUT 1000000
 
 struct File errFile;
 
-void ATA_wait_BSY() // Wait for bsy to be 0
+int ATA_wait_BSY() // Wait for bsy to be 0
 {
-	while (insb(0x1F7) & STATUS_BSY)
-		;
+	for (int i = 0; i < ATA_TIMEOUT; i++)
+	{
+		if (!(insb(0x1F7) & STATUS_BSY))
+		{
+			return 0;
+		}
+	}
+	return -1;
 }
 
-void ATA_wait_DRQ() // Wait fot drq to be 1
+int ATA_wait_DRQ() // Wait for drq to be 1
 {
-	unsigned char a = 1;
-	a = insb(0x1F7);
-	while (!(a & STATUS_RDY))
+	for (int i = 0; i < ATA_TIMEOUT; i++)
 	{
-		a = insb(0x1F7);
+		unsigned char status = insb(0x1F7);
+		if (status & (STATUS_ERR | STATUS_DF))
+		{
+			return -1;
+		}
+
+		if (!(status & STATUS_BSY) && (status & STATUS_DRQ))
+		{
+			return 0;
+		}
 	}
+	return -1;
 }
 
 size_t round_to_512(size_t size)
@@ -100,8 +117,10 @@ void sort_files_for_sector_number()
 
 int disk_read_sector(int lba, void *buf)
 {
-	ATA_wait_BSY();
-	ATA_wait_DRQ();
+	if (ATA_wait_BSY() < 0)
+	{
+		return -1;
+	}
 
 	lba = lba + OS_SECTORS + HEADER_SECTORS;
 	outb(0x1F6, 0xE0 | ((lba >> 24) & 0xF));
@@ -113,8 +132,16 @@ int disk_read_sector(int lba, void *buf)
 
 	uint16_t *ptr = (uint16_t *)buf;
 
-	ATA_wait_BSY();
-	ATA_wait_DRQ();
+	if (ATA_wait_BSY() < 0)
+	{
+		return -1;
+	}
+
+	if (ATA_wait_DRQ() < 0)
+	{
+		return -1;
+	}
+
 	for (int i = 0; i < 256; i++)
 	{
 		*ptr = insw(0x1F0);
@@ -126,8 +153,10 @@ int disk_read_sector(int lba, void *buf)
 
 int disk_write_sector(int lba, void *buf)
 {
-	ATA_wait_BSY();
-	ATA_wait_DRQ();
+	if (ATA_wait_BSY() < 0)
+	{
+		return -1;
+	}
 
 	lba = lba + OS_SECTORS + HEADER_SECTORS;
 	outb(0x1F6, (lba >> 24) | 0xE0);
@@ -137,8 +166,15 @@ int disk_write_sector(int lba, void *buf)
 	outb(0x1F5, (unsigned char)(lba >> 16));
 	outb(0x1F7, 0x30);
 
-	ATA_wait_BSY();
-	ATA_wait_DRQ();
+	if (ATA_wait_BSY() < 0)
+	{
+		return -1;
+	}
+
+	if (ATA_wait_DRQ() < 0)
+	{
+		return -1;
+	}
 
 	unsigned short *ptr = (unsigned short *)buf;
 
@@ -159,7 +195,10 @@ int save_on_disk()
 		return -1;
 	}
 
-	disk_write_sector(0 - HEADER_SECTORS, &disk_save);
+	if (disk_write_sector(0 - HEADER_SECTORS, &disk_save) < 0)
+	{
+		return -1;
+	}
 
 	size_t files_size = disk_save.number_of_files * sizeof(struct File);
 	files_size = round_to_512(files_size) / 512;
@@ -167,7 +206,10 @@ int save_on_disk()
 	for (int i = 0; i < files_size; i++)
 	{
 		void *t = files_addr + (i * 512);
-		disk_write_sector(i + DISK_STRUCT_SECTOR - HEADER_SECTORS, t);
+		if (disk_write_sector(i + DISK_STRUCT_SECTOR - HEADER_SECTORS, t) < 0)
+		{
+			return -1;
+		}
 	}
 	return 0;
 }
@@ -175,24 +217,66 @@ int save_on_disk()
 int read_from_disk()
 {
 	char buf[512];
-	disk_read_sector(0 - HEADER_SECTORS, &buf);
+	if (disk_read_sector(0 - HEADER_SECTORS, &buf) < 0)
+	{
+		free(files_addr);
+		disk_save.number_of_files = 0;
+		disk_save.last_sector = 0;
+		files_addr = 0;
+		return -1;
+	}
 	memcpy(&disk_save, &buf, sizeof(struct disk_save_struct));
 
-	free(files_addr);
-	files_addr = zalloc(sizeof(struct File) * disk_save.number_of_files);
+	if (disk_save.number_of_files < 0 || disk_save.number_of_files > OS_MAX_FILE)
+	{
+		free(files_addr);
+		disk_save.number_of_files = 0;
+		disk_save.last_sector = 0;
+		files_addr = 0;
+		return -1;
+	}
 
-	size_t files_size = disk_save.number_of_files * sizeof(struct File);
-	files_size = round_to_512(files_size);
+	free(files_addr);
+	files_addr = 0;
+
+	if (disk_save.number_of_files == 0)
+	{
+		return 0;
+	}
+
+	files_addr = zalloc(sizeof(struct File) * disk_save.number_of_files);
+	if (!files_addr || files_addr == (void *)-1)
+	{
+		disk_save.number_of_files = 0;
+		disk_save.last_sector = 0;
+		files_addr = 0;
+		return -1;
+	}
+
+	size_t files_bytes = disk_save.number_of_files * sizeof(struct File);
+	size_t files_size = round_to_512(files_bytes);
 
 	for (int i = 0; i < files_size / 512; i++)
 	{
 		char buf2[512];
-		disk_read_sector(DISK_STRUCT_SECTOR + i - HEADER_SECTORS, &buf2);
+		if (disk_read_sector(DISK_STRUCT_SECTOR + i - HEADER_SECTORS, &buf2) < 0)
+		{
+			free(files_addr);
+			files_addr = 0;
+			disk_save.number_of_files = 0;
+			disk_save.last_sector = 0;
+			return -1;
+		}
 
 		int offset = (512 * i);
-		void *p = files_addr + offset;
+		size_t copy_size = 512;
+		if ((size_t)offset + copy_size > files_bytes)
+		{
+			copy_size = files_bytes - (size_t)offset;
+		}
 
-		memcpy(p, &buf2, 512);
+		void *p = files_addr + offset;
+		memcpy(p, &buf2, copy_size);
 	}
 
 	return 0;
@@ -200,20 +284,35 @@ int read_from_disk()
 
 int createFile(char *name, int size, int start_Sector, int last)
 {
+	if (size <= 0)
+	{
+		return -1;
+	}
+
 	struct File tfile;
 	tfile.number_of_sectors = size;
 	tfile.start_sector = start_Sector;
 	tfile.last_sector = start_Sector + (size - 1);
+	memset(tfile.name, 0x00, MAX_FILENAME_LENGTH);
 	for (int i = 0; i < MAX_FILENAME_LENGTH - 1; i++)
 	{
+		if (name[i] == 0x00)
+		{
+			break;
+		}
 		tfile.name[i] = name[i];
 	}
 
-	tfile.name[MAX_FILENAME_LENGTH - 1] = 0x00;
-
 	void *t_files_addr = zalloc(sizeof(struct File) * (disk_save.number_of_files + 1));
+	if (!t_files_addr || t_files_addr == (void *)-1)
+	{
+		return -1;
+	}
 
-	memcpy(t_files_addr, files_addr, sizeof(struct File) * disk_save.number_of_files);
+	if (disk_save.number_of_files > 0)
+	{
+		memcpy(t_files_addr, files_addr, sizeof(struct File) * disk_save.number_of_files);
+	}
 
 	memcpy(t_files_addr + sizeof(struct File) * disk_save.number_of_files, &tfile, sizeof(struct File));
 
@@ -265,7 +364,17 @@ int delete_File(char *name)
 	if (file_number == -1)
 		return -1;
 
-	void *t_files_addr = zalloc(sizeof(struct File) * (disk_save.number_of_files - 1));
+	int new_file_count = disk_save.number_of_files - 1;
+	void *t_files_addr = 0;
+	if (new_file_count > 0)
+	{
+		t_files_addr = zalloc(sizeof(struct File) * new_file_count);
+		if (!t_files_addr || t_files_addr == (void *)-1)
+		{
+			return -1;
+		}
+	}
+
 	for (int i = 0; i < file_number; i++)
 	{
 		memcpy(t_files_addr + (i * sizeof(struct File)), files_addr + (i * sizeof(struct File)), sizeof(struct File));
@@ -276,16 +385,21 @@ int delete_File(char *name)
 		memcpy(t_files_addr + ((i - 1) * sizeof(struct File)), files_addr + (i * sizeof(struct File)), sizeof(struct File));
 	}
 
-	struct File tfile = get_file(file_number);
-	struct File tfile2 = get_file(file_number - 1);
-	if (tfile.start_sector + tfile.number_of_sectors - 1 == disk_save.last_sector)
-	{
-		disk_save.last_sector = tfile2.start_sector + tfile2.number_of_sectors;
-	}
-
-	disk_save.number_of_files--;
+	disk_save.number_of_files = new_file_count;
 	free(files_addr);
 	files_addr = t_files_addr;
+
+	disk_save.last_sector = 0;
+	for (int i = 0; i < disk_save.number_of_files; i++)
+	{
+		struct File tfile = get_file(i);
+		int next_free_sector = tfile.last_sector + 1;
+		if (next_free_sector > disk_save.last_sector)
+		{
+			disk_save.last_sector = next_free_sector;
+		}
+	}
+
 	new_line();
 	print(name);
 	print(" is gone");
@@ -295,28 +409,46 @@ int delete_File(char *name)
 
 int write_block_file(char *name, void *buf, int size, int starting_byte)
 {
+	if (size <= 0 || starting_byte < 0)
+	{
+		return -1;
+	}
+
 	for (int i = 0; i < disk_save.number_of_files; i++)
 	{
 		struct File tfile = get_file(i);
 		if (cmpstring(name, tfile.name))
 		{
-			int first_sector = round_to_512_down(starting_byte) / 512;
-			int last_sector = round_to_512(starting_byte + size) / 512;
-			int n_sectors = last_sector - first_sector;
-			if (tfile.start_sector + n_sectors <= tfile.last_sector)
+			int file_size = tfile.number_of_sectors * 512;
+			if (starting_byte + size <= file_size)
 			{
+				int first_sector = starting_byte / 512;
+				int last_sector = (starting_byte + size - 1) / 512;
+				int n_sectors = (last_sector - first_sector) + 1;
 				void *t_buf = zalloc(n_sectors * 512);
+				if (!t_buf || t_buf == (void *)-1)
+				{
+					return -1;
+				}
 
 				for (int j = 0; j < n_sectors; j++)
 				{
-					disk_read_sector(tfile.start_sector + (first_sector) + j, t_buf + (j * 512));
+					if (disk_read_sector(tfile.start_sector + first_sector + j, t_buf + (j * 512)) < 0)
+					{
+						free(t_buf);
+						return -1;
+					}
 				}
 
 				memcpy(t_buf + (starting_byte - (first_sector * 512)), buf, size);
 
 				for (int j = 0; j < n_sectors; j++)
 				{
-					disk_write_sector(tfile.start_sector + (first_sector) + j, t_buf + (j * 512));
+					if (disk_write_sector(tfile.start_sector + first_sector + j, t_buf + (j * 512)) < 0)
+					{
+						free(t_buf);
+						return -1;
+					}
 				}
 
 				free(t_buf);
@@ -330,6 +462,11 @@ int write_block_file(char *name, void *buf, int size, int starting_byte)
 
 int write_file_to_memory(char *name, void *buf, int size)
 {
+	if (size <= 0)
+	{
+		return -1;
+	}
+
 	for (int i = 0; i < disk_save.number_of_files; i++)
 	{
 		struct File f = get_file(i);
@@ -351,9 +488,15 @@ int write_file_to_memory(char *name, void *buf, int size)
 			// encontrou
 			for (int k = 0; k < size_of_sectors; k++)
 			{
-				disk_write_sector(f.last_sector + k + 1, buf + (k * 512));
+				if (disk_write_sector(f.last_sector + k + 1, buf + (k * 512)) < 0)
+				{
+					return -1;
+				}
 			}
-			createFile(name, size_of_sectors, f.last_sector + 1, 0);
+			if (createFile(name, size_of_sectors, f.last_sector + 1, 0) < 0)
+			{
+				return -1;
+			}
 			new_line();
 			print(name);
 			print(" has been createdd");
@@ -369,9 +512,15 @@ int write_file_to_memory(char *name, void *buf, int size)
 		{
 			for (int j = 0; j < size_of_sectors; j++)
 			{
-				disk_write_sector(0 + j, buf + (j * 512));
+				if (disk_write_sector(0 + j, buf + (j * 512)) < 0)
+				{
+					return -1;
+				}
 			}
-			createFile(name, size_of_sectors, 0, 1); // o .last_sector é ocupado
+			if (createFile(name, size_of_sectors, 0, 0) < 0)
+			{
+				return -1;
+			}
 			new_line();
 			print(name);
 			print(" has been created");
@@ -382,9 +531,15 @@ int write_file_to_memory(char *name, void *buf, int size)
 
 	for (int j = 0; j < size_of_sectors; j++)
 	{
-		disk_write_sector(disk_save.last_sector + j, buf + (j * 512));
+		if (disk_write_sector(disk_save.last_sector + j, buf + (j * 512)) < 0)
+		{
+			return -1;
+		}
 	}
-	createFile(name, size_of_sectors, disk_save.last_sector, 1); // o .last_sector é ocupado
+	if (createFile(name, size_of_sectors, disk_save.last_sector, 1) < 0)
+	{
+		return -1;
+	}
 	new_line();
 	print(name);
 	print(" has been created");
@@ -394,6 +549,15 @@ int write_file_to_memory(char *name, void *buf, int size)
 
 int rewrite_file(char *name, void *buf, int size)
 {
+	if (size < 0)
+	{
+		return -1;
+	}
+	if (size == 0)
+	{
+		return 0;
+	}
+
 	for (int i = 0; i < disk_save.number_of_files; i++)
 	{
 		struct File tfile = get_file(i);
@@ -401,9 +565,10 @@ int rewrite_file(char *name, void *buf, int size)
 		{
 			if (size <= tfile.number_of_sectors * 512)
 			{
-				for (int j = 0; j < tfile.number_of_sectors; j++)
+				if (write_block_file(name, buf, size, 0) < 0)
 				{
-					disk_write_sector(tfile.start_sector + j, buf + (j * 512));
+					print("problem rewritting");
+					return -1;
 				}
 				new_line();
 				print(tfile.name);
@@ -424,22 +589,35 @@ int rewrite_file(char *name, void *buf, int size)
 
 int read_block_file(char *name, void *buf, int size, int starting_byte)
 {
+	if (size <= 0 || starting_byte < 0)
+	{
+		return -1;
+	}
 
 	for (int i = 0; i < disk_save.number_of_files; i++)
 	{
 		struct File tfile = get_file(i);
 		if (cmpstring(name, tfile.name))
 		{
-			int first_sector = round_to_512_down(starting_byte) / 512;
-			int last_sector = round_to_512(starting_byte + size) / 512;
-			int n_sectors = last_sector - first_sector;
-			if (tfile.start_sector + n_sectors <= tfile.last_sector)
+			int file_size = tfile.number_of_sectors * 512;
+			if (starting_byte + size <= file_size)
 			{
+				int first_sector = starting_byte / 512;
+				int last_sector = (starting_byte + size - 1) / 512;
+				int n_sectors = (last_sector - first_sector) + 1;
 				void *t_buf = zalloc(n_sectors * 512);
+				if (!t_buf || t_buf == (void *)-1)
+				{
+					return -1;
+				}
 
 				for (int j = 0; j < n_sectors; j++)
 				{
-					disk_read_sector(tfile.start_sector + (first_sector) + j, t_buf + (j * 512));
+					if (disk_read_sector(tfile.start_sector + first_sector + j, t_buf + (j * 512)) < 0)
+					{
+						free(t_buf);
+						return -1;
+					}
 				}
 				memcpy(buf, t_buf + (starting_byte - (first_sector * 512)), size);
 				free(t_buf);
@@ -453,6 +631,15 @@ int read_block_file(char *name, void *buf, int size, int starting_byte)
 
 int read_file(char *name, void *buf, int size)
 {
+	if (size < 0)
+	{
+		return -1;
+	}
+	if (size == 0)
+	{
+		return 0;
+	}
+
 	for (int i = 0; i < disk_save.number_of_files; i++)
 	{
 		struct File tfile = get_file(i);
@@ -460,12 +647,7 @@ int read_file(char *name, void *buf, int size)
 		{
 			if (size <= tfile.number_of_sectors * 512)
 			{
-				for (int j = 0; j < tfile.number_of_sectors; j++)
-				{
-					disk_read_sector(tfile.start_sector + j, buf + (j * 512));
-				}
-
-				return 0;
+				return read_block_file(name, buf, size, 0);
 			}
 			else
 			{
@@ -528,6 +710,7 @@ int get_n_files()
 
 void disk_init()
 {
+	files_addr = 0;
 	disk_save.last_sector = 0;
 	disk_save.number_of_files = 0;
 	errFile.last_sector = -1;

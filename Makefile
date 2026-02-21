@@ -1,4 +1,4 @@
-FILES =./build/kernel.o ./build/io/io.asm.o ./build/memory/memory.o ./build/memory/memory.asm.o ./build/terminal/terminal.o ./build/string/string.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/keyboardHandler/keyboardHandler.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/kernel.asm.o ./build/disk/disk.o ./build/nano/nano.o ./build/math/math.o ./build/raycaster/raycaster.o ./build/mouse/mouse.o ./build/exec/exec.o ./build/multitasking/multitasking.asm.o ./build/multitasking/multitasking.o ./build/window_management/window_management.o
+FILES =./build/kernel.o ./build/io/io.asm.o ./build/memory/memory.o ./build/memory/memory.asm.o ./build/terminal/terminal.o ./build/string/string.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/keyboardHandler/keyboardHandler.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/kernel.asm.o ./build/disk/disk.o ./build/nano/nano.o ./build/math/math.o ./build/raycaster/raycaster.o ./build/mouse/mouse.o ./build/exec/exec.o ./build/multitasking/multitasking.asm.o ./build/multitasking/multitasking.o ./build/window_management/window_management.o ./build/paging/paging.o
 INCLUDES = -I./src
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
@@ -7,7 +7,7 @@ all: ./bin/boot.o ./bin/kernel.bin
 
 	cp bin/myos.bin isodir/boot/myos.bin
 	cp grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o myos.iso isodir
+	grub2-mkrescue -o myos.iso isodir
 	dd if=/dev/zero bs=1048576 count=32 >> myos.iso
 
 ./bin/boot.o: ./src/boot.s
@@ -30,6 +30,10 @@ all: ./bin/boot.o ./bin/kernel.bin
 
 ./build/memory/memory.o: ./src/memory/memory.c
 	i686-elf-gcc $(INCLUDES) -I./src/memory $(FLAGS) -std=gnu99 -c ./src/memory/memory.c -o ./build/memory/memory.o
+
+./build/paging/paging.o: ./src/paging/paging.c
+	mkdir -p ./build/paging
+	i686-elf-gcc $(INCLUDES) -I./src/paging $(FLAGS) -std=gnu99 -c ./src/paging/paging.c -o ./build/paging/paging.o
 
 ./build/io/io.asm.o: ./src/io/io.asm
 	nasm -f elf -g ./src/io/io.asm -o ./build/io/io.asm.o 
@@ -83,7 +87,7 @@ all: ./bin/boot.o ./bin/kernel.bin
 	i686-elf-gcc $(INCLUDES) -I./src/window_management $(FLAGS) -std=gnu99 -c ./src/window_management/window_management.c -o ./build/window_management/window_management.o
 
 run:
-	qemu-system-i386 myos.iso
+	qemu-system-i386 -drive format=raw,file=myos.iso
 
 clear:
 	rm $(FILES)

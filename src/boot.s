@@ -1,27 +1,34 @@
-bits    32
-section .text
+bits 32
+
+section .multiboot
 align 4
 
 dd 0x1BADB002
 dd 0x04
 dd -(0x1BADB002 + 0x04)
 
-dd 0 ; skip some flags
+dd 0 ; address fields (unused, because bit 16 is not set)
 dd 0
 dd 0
 dd 0
 dd 0
 
-dd 0 ; sets it to graphical mode
-dd 800 ; sets the width
-dd 600 ; sets the height
-dd 32 ; sets the bits per pixel
+dd 0 ; graphics mode request
+dd 800
+dd 600
+dd 32
 
-push ebx
+section .text
+global _start
 global start
 extern kernel_main
+
+_start:
 start:
     cli
-    
+    push ebx ; multiboot info pointer
     call kernel_main
+
+.hang:
     hlt
+    jmp .hang

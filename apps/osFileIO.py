@@ -5,7 +5,7 @@ DISK_STRUCT_SECTOR = 1
 OS_SECTORS = 20020
 HEADER_SECTORS = 512
 file_name = ("/home/marques/projects/os/myos.iso")
-update_file_name = ("/home/marques/projects/compiler/hello_elf_32")
+update_file_name = ("/home/marques/projects/os/apps/C/main")
 sector_n = OS_SECTORS + HEADER_SECTORS
 
 STARING_FILE_SECTOR = DISK_STRUCT_SECTOR - HEADER_SECTORS + sector_n
