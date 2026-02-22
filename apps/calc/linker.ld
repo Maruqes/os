@@ -1,10 +1,14 @@
-ENTRY(_Start)
+ENTRY(main_start)
 SECTIONS
 {
-    .text : { *(.text) }
+    . = 0x40000000;
 
-    .data : { *(.data) }
+    .text ALIGN(4K) : { *(.text) }
+
+    .rodata ALIGN(4K) : { *(.rodata) }
+
+    .data ALIGN(4K) : { *(.data) }
         
-    .bss : { *(.bss) }
+    .bss ALIGN(4K) : { *(.bss) *(COMMON) }
 
 }

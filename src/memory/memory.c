@@ -27,10 +27,10 @@ void *memcpy(void *dist, void *source, size_t size)
     return dist;
 }
 
-void *memcpy_prgm(void *dist, int source, size_t size)
+void *memcpy_prgm(void *dist, void *source, size_t size)
 {
     char *c_ptr = (char *)dist;
-    char *c_ptr2 = (char *)(cur_addr_program + source);
+    char *c_ptr2 = (char *)source;
     for (int i = 0; i < size; i++)
     {
         c_ptr[i] = c_ptr2[i];

@@ -19,6 +19,18 @@ typedef struct
     uint16_t e_shstrndx;  /* Section header string table index */
 } Elf32Hdr;
 
+typedef struct
+{
+    uint32_t p_type;   /* Segment type */
+    uint32_t p_offset; /* Segment file offset */
+    uint32_t p_vaddr;  /* Segment virtual address */
+    uint32_t p_paddr;  /* Segment physical address */
+    uint32_t p_filesz; /* Segment size in file */
+    uint32_t p_memsz;  /* Segment size in memory */
+    uint32_t p_flags;  /* Segment flags */
+    uint32_t p_align;  /* Segment alignment */
+} Elf32Phdr;
+
 void execute(char *fileName);
 void dot_data();
 void dot_rodata();

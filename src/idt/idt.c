@@ -263,9 +263,9 @@ void idt_zero()
 ///////
 void *cur_addr_program;
 
-void idt_printINT(int address)
+void idt_printINT(char *address)
 {
-    print((char *)(cur_addr_program + address));
+    print(address);
     new_line();
 }
 

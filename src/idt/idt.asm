@@ -159,6 +159,7 @@ debbugINT:
 ;MULTI TASKING SYSTEM
 extern new_stack_pointer
 extern new_stack_base_pointer
+extern new_page_directory
 
 extern save_current_task_esp
 extern save_current_task_ebp
@@ -174,7 +175,10 @@ create_task_int:
     mov eax, [esp];copy old stack to create task
     mov ebx, [esp+4]
     mov ecx, [esp+8]
-    
+
+    mov edx, [new_page_directory]
+    mov cr3, edx
+
     mov esp, [new_stack_pointer]
     mov ebp, [new_stack_base_pointer]
     push ecx
@@ -189,6 +193,9 @@ change_task_int:
     mov [save_current_task_esp], esp
     mov [save_current_task_ebp], ebp
     call set_old_ptr
+
+    mov edx, [new_page_directory]
+    mov cr3, edx
 
     mov eax, [new_stack_pointer]
     mov ebx, [new_stack_base_pointer]

@@ -5,10 +5,11 @@ FLAGS = -m32 -masm=intel -g -ffreestanding -falign-jumps -falign-functions -fali
 #objdump -S main
 # strip --strip-debug --discard-all main     mantem alguns symbols  --keep-section-symbols
 #objdump -Sdx main >> dump.txt
+
+#export PATH="$HOME/opt/cross/bin:$PATH"
 all: $(FILES)
 	i686-elf-ld -g -relocatable $(FILES) -o ./build/mainJoin.o
-	i686-elf-gcc -T linker.ld -o main -ffreestanding -O2 -nostdlib ./build/mainJoin.o
-#strip --strip-debug main
+	i686-elf-gcc -T linker.ld -o main -ffreestanding -O2 -nostdlib ./build/mainJoin.o -lgcc
 
 
 ./build/asm.o: ./asm.asm

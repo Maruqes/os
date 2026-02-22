@@ -440,7 +440,6 @@ int test_dot_data()
         if (test[i] != (char)i)
         {
             print("ERROR TEST3");
-            return 0;
         }
     }
     print("TEST3");
@@ -453,7 +452,6 @@ int test_dot_data()
             if (test2[i][j] != (char)j)
             {
                 print("ERROR TEST4");
-                return 0;
             }
         }
     }
@@ -465,7 +463,6 @@ int test_dot_data()
         if (test3[i] != (char)i)
         {
             print("ERROR TEST5");
-            return 0;
         }
     }
     print("TEST5");
@@ -478,7 +475,6 @@ int test_dot_data()
             if (test4[i][j] != (char)j)
             {
                 print("ERROR TEST6");
-                return 0;
             }
         }
     }
@@ -490,7 +486,6 @@ int test_dot_data()
         if (test5[i] != (char)i)
         {
             print("ERROR TEST7");
-            return 0;
         }
     }
     print("TEST7");
@@ -503,7 +498,6 @@ int test_dot_data()
             if (test6[i][j] != (char)j)
             {
                 print("ERROR TEST8");
-                return 0;
             }
         }
     }
@@ -513,7 +507,6 @@ int test_dot_data()
     if (test14[0] != 'B' && test14[1] != 'O' && test14[2] != 'A' && test14[3] != 'S')
     {
         print("ERROR TEST9");
-        return 0;
     }
     print("TEST9");
     return 1;

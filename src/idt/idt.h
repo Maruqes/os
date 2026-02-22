@@ -41,7 +41,7 @@ void int21h_handler_input();
 void int32h_handler();
 void finish_int();
 void finish_int_slave_pic();
-void idt_printINT(int address);
+void idt_printINT(char *address);
 void stop_sleep();
 Clock *return_clock();
 void finish_int_without_tasks();

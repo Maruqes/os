@@ -10,7 +10,6 @@ void execute(char *fileName)
 {
     disable_int();
     void *addr_program;
-    uint16_t p_offset;
 
     struct File tfile = get_file_by_name(fileName);
     free(input_str);
@@ -19,6 +18,7 @@ void execute(char *fileName)
     if (tfile.last_sector == -1)
     {
         print("FILE does not exist");
+        enable_int();
         return;
     }
     int program_length = tfile.number_of_sectors * 512;
@@ -27,6 +27,7 @@ void execute(char *fileName)
     if (a == -1)
     {
         print("cannot execute file");
+        enable_int();
         return;
     }
     Elf32Hdr elf_struct;
@@ -35,11 +36,18 @@ void execute(char *fileName)
     {
         print(fileName);
         print(" is not an executable");
+        enable_int();
         return;
     }
-    memcpy(&p_offset, addr_program + elf_struct.e_phoff + 4, 4);
+    if (elf_struct.e_phnum == 0)
+    {
+        print("ELF without program header");
+        enable_int();
+        return;
+    }
 
-    create_task(addr_program, p_offset, tfile.name, (program_length));
+    create_task(addr_program, elf_struct.e_entry, tfile.name, (program_length));
+    enable_int();
 }
 
 // program crashes

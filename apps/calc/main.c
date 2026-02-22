@@ -2,6 +2,21 @@
 #include <stdint.h>
 #include "os.h"
 
+#define APP_SCREEN_WIDTH 800
+#define APP_SCREEN_HEIGHT 600
+#define DISPLAY_DIGITS 6
+
+#define OP_NONE -1
+#define OP_ADD 0
+#define OP_SUB 1
+#define OP_DIV 2
+#define OP_MUL 3
+#define OP_POW 4
+#define OP_SQRT 5
+
+#define GLYPH_MINUS 11
+#define BUTTON_LEFT_DOWN 0b00000001
+
 char *lett;
 
 int *numbers_save;
@@ -186,65 +201,153 @@ char letters[18][7][5] = {
 
 char *t;
 
+void clear_calc(unsigned int *buf);
+
+static int digits_array_to_int(const int *digits, int *out_value)
+{
+    int sign = 1;
+    int saw_sign = 0;
+    int saw_digit = 0;
+    int value = 0;
+
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
+    {
+        int digit = digits[i];
+        if (digit == -1)
+        {
+            if (saw_sign || saw_digit)
+            {
+                return 0;
+            }
+            continue;
+        }
+
+        if (digit == GLYPH_MINUS && !saw_sign && !saw_digit)
+        {
+            sign = -1;
+            saw_sign = 1;
+            continue;
+        }
+
+        if (digit < 0 || digit > 9)
+        {
+            return 0;
+        }
+
+        saw_digit = 1;
+        value = value * 10 + digit;
+    }
+
+    if (!saw_digit)
+    {
+        return 0;
+    }
+
+    *out_value = value * sign;
+    return 1;
+}
+
+static int value_to_digits_array(int value, int *digits)
+{
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
+    {
+        digits[i] = -1;
+    }
+
+    int is_negative = value < 0;
+    long long abs_value = value;
+    if (abs_value < 0)
+    {
+        abs_value = -abs_value;
+    }
+
+    int idx = DISPLAY_DIGITS - 1;
+    do
+    {
+        if (idx < 0)
+        {
+            return 0;
+        }
+        digits[idx] = (int)(abs_value % 10);
+        abs_value = abs_value / 10;
+        idx--;
+    } while (abs_value > 0);
+
+    if (is_negative)
+    {
+        if (idx < 0)
+        {
+            return 0;
+        }
+        digits[idx] = GLYPH_MINUS;
+    }
+
+    return 1;
+}
+
 char *digit_to_number(int n)
 {
-    int count = 0;
-    int dig = n;
+    int is_negative = n < 0;
+    long long value = n;
+    if (value < 0)
+    {
+        value = -value;
+    }
 
-    if (dig == 0)
-        count = 1;
-    while (dig != 0)
+    int count = 1;
+    long long dig = value;
+    while (dig >= 10)
     {
         dig = dig / 10;
-        ++count;
+        count++;
+    }
+    if (is_negative)
+    {
+        count++;
     }
 
     free(t);
     t = zalloc(count + 1);
-
-    t[count + 1] = '\0';
-    for (int j = 0; j < count; j++)
+    if (!t)
     {
-        int res = n;
-
-        for (int i = 0; i < count - (1 * (j + 1)); i++)
-        {
-            // res = res / 10;
-        }
-
-        t[j] = res + '0';
-
-        for (int i = 0; i < count - (1 * (j + 1)); i++)
-        {
-            // res = res * 10;
-        }
-
-        n = n - res;
+        return 0;
     }
+
+    t[count] = '\0';
+    int idx = count - 1;
+    do
+    {
+        t[idx] = (char)('0' + (value % 10));
+        value = value / 10;
+        idx--;
+    } while (value > 0 && idx >= 0);
+
+    if (is_negative)
+    {
+        t[0] = '-';
+    }
+
     return t;
 }
 
 int number_to_digit()
 {
-    int res = 0;
-    for (int i = 0; i < 6; ++i)
+    int value = 0;
+    if (!digits_array_to_int(numbers_save, &value))
     {
-        if (numbers_save[i] >= 0 && numbers_save[i] <= 9)
-        {
-            res = res * 10 + numbers_save[i];
-        }
-        else
-        {
-            return -1;
-        }
+        return -1;
     }
-
-    return res;
+    return value;
 }
 
 void put_pixel(int x, int y, int color, unsigned int *buf)
 {
-    buf[y * 800 + x] = color;
+    if (!buf || x < 0 || y < 0 || x >= APP_SCREEN_WIDTH || y >= APP_SCREEN_HEIGHT)
+    {
+        return;
+    }
+
+    buf[y * APP_SCREEN_WIDTH + x] = color;
 }
 
 void draw_square(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int *buf, unsigned int color)
@@ -518,11 +621,11 @@ void draw_calc_numbers(unsigned int *buf)
     }
 }
 
-void draw_letter_pos(unsigned int x, unsigned int y, int n, unsigned int *buf)
+void draw_letter_pos(int x, int y, int n, unsigned int *buf)
 {
     if (x == -1 && y == -1 && n == -1) // clear
     {
-        draw_square(0, 0, 800, 150, buf, 0x000000);
+        draw_square(0, 0, APP_SCREEN_WIDTH, 150, buf, 0x000000);
 
         return;
     }
@@ -548,7 +651,9 @@ void draw_letter_pos(unsigned int x, unsigned int y, int n, unsigned int *buf)
 
 void update_calc(unsigned int *buf)
 {
-    for (int i = 0; i < 6; i++)
+    draw_letter_pos(-1, -1, -1, buf);
+
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
     {
         if (numbers_save[i] == -1)
         {
@@ -560,18 +665,26 @@ void update_calc(unsigned int *buf)
 
 void draw_letter(int n, unsigned int *buf)
 {
-    if (n == -1)
+    if (n < 0 || n > 9)
     {
-        draw_letter_pos(n, n, n, buf);
         return;
     }
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
+    {
+        if (numbers_save[i] != -1 && (numbers_save[i] < 0 || numbers_save[i] > 9))
+        {
+            clear_calc(buf);
+            break;
+        }
+    }
+
+    for (int i = 0; i < DISPLAY_DIGITS - 1; i++)
     {
         numbers_save[i] = numbers_save[i + 1];
     }
 
-    numbers_save[5] = n;
+    numbers_save[DISPLAY_DIGITS - 1] = n;
 
     // for (int i = 0; i < 6; i++)
     // {
@@ -589,19 +702,212 @@ void draw_letter(int n, unsigned int *buf)
 
 void clear_calc(unsigned int *buf)
 {
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
     {
         numbers_save[i] = -1; // -1 = no number
     }
-    draw_letter(-1, buf);
+    update_calc(buf);
+}
+
+void clear_saved_calc()
+{
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
+    {
+        numbers_save_for_calc[i] = -1;
+    }
+}
+
+int save_operation_state(unsigned int *buf, int operation)
+{
+    int current_value = 0;
+    if (!digits_array_to_int(numbers_save, &current_value))
+    {
+        return 0;
+    }
+
+    (void)current_value;
+    memcpy(numbers_save_for_calc, numbers_save, DISPLAY_DIGITS * sizeof(int));
+    opp = operation;
+    clear_calc(buf);
+    return 1;
+}
+
+void set_error_display(unsigned int *buf)
+{
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
+    {
+        numbers_save[i] = GLYPH_MINUS;
+    }
+    update_calc(buf);
+}
+
+int pow_int_checked(int base, int exponent, int *out_value)
+{
+    if (exponent < 0)
+    {
+        return 0;
+    }
+
+    long long result = 1;
+    long long factor = base;
+
+    while (exponent > 0)
+    {
+        if ((exponent & 1) == 1)
+        {
+            result = result * factor;
+            if (result > 2147483647LL || result < -2147483648LL)
+            {
+                return 0;
+            }
+        }
+
+        exponent = exponent >> 1;
+        if (exponent > 0)
+        {
+            factor = factor * factor;
+            if (factor > 2147483647LL || factor < -2147483648LL)
+            {
+                return 0;
+            }
+        }
+    }
+
+    *out_value = (int)result;
+    return 1;
+}
+
+int sqrt_int_floor(int value)
+{
+    if (value <= 0)
+    {
+        return 0;
+    }
+
+    int low = 0;
+    int high = (value < 46340) ? value : 46340;
+    int result = 0;
+
+    while (low <= high)
+    {
+        int mid = low + ((high - low) / 2);
+        int sq = mid * mid;
+        if (sq == value)
+        {
+            return mid;
+        }
+        if (sq < value)
+        {
+            result = mid;
+            low = mid + 1;
+        }
+        else
+        {
+            high = mid - 1;
+        }
+    }
+
+    return result;
+}
+
+int calculate_operation(int left_value, int right_value, int operation, int *out_value)
+{
+    long long result = 0;
+
+    switch (operation)
+    {
+    case OP_ADD:
+        result = (long long)left_value + right_value;
+        break;
+    case OP_SUB:
+        result = (long long)left_value - right_value;
+        break;
+    case OP_DIV:
+        if (right_value == 0)
+        {
+            return 0;
+        }
+        result = left_value / right_value;
+        break;
+    case OP_MUL:
+        result = (long long)left_value * right_value;
+        break;
+    case OP_POW:
+        return pow_int_checked(left_value, right_value, out_value);
+    case OP_SQRT:
+        if (left_value < 0)
+        {
+            return 0;
+        }
+        *out_value = sqrt_int_floor(left_value);
+        return 1;
+    default:
+        return 0;
+    }
+
+    if (result > 2147483647LL || result < -2147483648LL)
+    {
+        return 0;
+    }
+
+    *out_value = (int)result;
+    return 1;
 }
 
 void calculate_solution(unsigned int *buf)
 {
-    if (opp == 0)
+    int first_value = 0;
+    int second_value = 0;
+    int result = 0;
+
+    if (opp == OP_NONE)
     {
-        draw_y_line(150, 600, 267, buf, 0xff000f);
+        return;
     }
+
+    if (!digits_array_to_int(numbers_save_for_calc, &first_value))
+    {
+        set_error_display(buf);
+        clear_saved_calc();
+        opp = OP_NONE;
+        return;
+    }
+
+    if (opp != OP_SQRT)
+    {
+        if (!digits_array_to_int(numbers_save, &second_value))
+        {
+            set_error_display(buf);
+            clear_saved_calc();
+            opp = OP_NONE;
+            return;
+        }
+    }
+    else if (digits_array_to_int(numbers_save, &second_value))
+    {
+        // Allow "S then number then =" as well as "number then S then =".
+        first_value = second_value;
+    }
+
+    if (!calculate_operation(first_value, second_value, opp, &result))
+    {
+        set_error_display(buf);
+        clear_saved_calc();
+        opp = OP_NONE;
+        return;
+    }
+
+    if (!value_to_digits_array(result, numbers_save))
+    {
+        set_error_display(buf);
+        clear_saved_calc();
+        opp = OP_NONE;
+        return;
+    }
+
+    update_calc(buf);
+    clear_saved_calc();
+    opp = OP_NONE;
 }
 
 int main()
@@ -652,52 +958,51 @@ int main()
 
     draw_calc_numbers(buf);
 
-    numbers_save = zalloc(6 * sizeof(int));
-    numbers_save_for_calc = zalloc(6 * sizeof(int));
+    numbers_save = zalloc(DISPLAY_DIGITS * sizeof(int));
+    numbers_save_for_calc = zalloc(DISPLAY_DIGITS * sizeof(int));
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < DISPLAY_DIGITS; i++)
     {
         numbers_save[i] = -1; // -1 = no number
     }
+    clear_saved_calc();
+    opp = OP_NONE;
+    mouse_pressed = 0;
+
+    update_calc(buf);
 
     Mouse_struct *ms;
     while (1)
     {
         ms = get_mouse_info();
-        if ((ms->mouse_info & 0b00000001) == 0b00000001 && mouse_pressed == 0)
+        if ((ms->mouse_info & BUTTON_LEFT_DOWN) == BUTTON_LEFT_DOWN && mouse_pressed == 0)
         {
             if (ms->y > 150 && ms->y < 300 && ms->x > 0 && ms->x < 133)
             {
                 //+
-                memcpy(numbers_save_for_calc, numbers_save, 6 * sizeof(int));
-                clear_calc(buf);
-                opp = 0;
+                save_operation_state(buf, OP_ADD);
             }
             else if (ms->y > 150 && ms->y < 300 && ms->x > 133 && ms->x < 266)
             {
                 //-
-                memcpy(numbers_save_for_calc, numbers_save, 6 * sizeof(int));
-                clear_calc(buf);
-                opp = 1;
+                save_operation_state(buf, OP_SUB);
             }
             else if (ms->y > 150 && ms->y < 300 && ms->x > 266 && ms->x < 400)
             {
                 // /
-                memcpy(numbers_save_for_calc, numbers_save, 6 * sizeof(int));
-                clear_calc(buf);
-                opp = 2;
+                save_operation_state(buf, OP_DIV);
             } ///////
             else if (ms->y > 300 && ms->y < 450 && ms->x > 0 && ms->x < 133)
             {
                 // x
-                memcpy(numbers_save_for_calc, numbers_save, 6 * sizeof(int));
-                clear_calc(buf);
-                opp = 3;
+                save_operation_state(buf, OP_MUL);
             }
             else if (ms->y > 450 && ms->y < 600 && ms->x > 0 && ms->x < 133)
             {
                 // c
                 clear_calc(buf);
+                clear_saved_calc();
+                opp = OP_NONE;
             }
             else if (ms->y > 450 && ms->y < 600 && ms->x > 266 && ms->x < 400)
             {
@@ -707,16 +1012,12 @@ int main()
             else if (ms->y > 300 && ms->y < 450 && ms->x > 133 && ms->x < 266)
             {
                 // p
-                memcpy(numbers_save_for_calc, numbers_save, 6 * sizeof(int));
-                clear_calc(buf);
-                opp = 4;
+                save_operation_state(buf, OP_POW);
             }
             else if (ms->y > 300 && ms->y < 450 && ms->x > 266 && ms->x < 400)
             {
                 // s
-                memcpy(numbers_save_for_calc, numbers_save, 6 * sizeof(int));
-                clear_calc(buf);
-                opp = 5;
+                save_operation_state(buf, OP_SQRT);
             } ///////
             else if (ms->y > 450 && ms->y < 600 && ms->x > 400 && ms->x < 533)
             {
@@ -765,7 +1066,7 @@ int main()
             }
             mouse_pressed = 1;
         }
-        if ((ms->mouse_info & 0b00000000) == 0b00000000)
+        if ((ms->mouse_info & BUTTON_LEFT_DOWN) == 0)
         {
             mouse_pressed = 0;
         }

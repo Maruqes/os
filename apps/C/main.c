@@ -95,28 +95,28 @@ int main()
 
     enable_int();
     finish_int();
-    
+
     printCharASM();
     char *runn = "RUNNING...2";
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 2; i++)
     {
         print(runn);
         sleep_this(5000);
     }
 
-    // new_line();
-    // // if (test_dot_data() == 0)
-    // // {
-    // //     // dot_data_crash();
-    // //     return 0;
-    // // }
+    new_line();
+    if (test_dot_data() == 0)
+    {
+        // dot_data_crash();
+        return 0;
+    }
 
-    // // if (test_ro_data() == 0)
-    // // {
-    // //     // dot_rodata_crash();
-    // //     return 0;
-    // // }
+    if (test_ro_data() == 0)
+    {
+        // dot_rodata_crash();
+        return 0;
+    }
     // print(digit_to_number());
     // sleep(5000);
 
